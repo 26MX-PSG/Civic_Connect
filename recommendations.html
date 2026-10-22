@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CivicConnect — bilingual guide to 15 selected government schemes.">
+  <title data-i18n-title="title.recs">My matches · CivicConnect</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="recommendations" data-base="">
+  <div id="app-header"></div>
+  <main id="main" tabindex="-1">
+
+    <div class="container page-head">
+      <div class="d-flex flex-wrap justify-content-between gap-3 align-items-end">
+        <div><h1 data-i18n="rec.h1">Schemes based on your profile</h1><p data-i18n="rec.sub">We compared your profile with each scheme’s basic criteria.</p></div>
+        <a href="profile.html" class="btn btn-outline-primary"><i class="bi bi-pencil" aria-hidden="true"></i><span data-i18n="rec.edit">Edit profile</span></a>
+      </div>
+    </div>
+    <div class="container">
+      <div class="disclaimer-box mb-4"><i class="bi bi-info-circle" aria-hidden="true"></i><div data-i18n="disclaimer.text">This information is for guidance only and is not an official eligibility decision. Please confirm on the official portal.</div></div>
+      <div id="rec-root"><div class="row row-cols-1 row-cols-md-2 g-3"></div></div>
+    </div>
+  </main>
+  <div id="app-footer"></div>
+
+  <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/lang/ta.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/match.js"></script>
+  <script src="assets/js/chatbot.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/pages/recommendations.js"></script>
+</body>
+</html>

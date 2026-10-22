@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CivicConnect — bilingual guide to 15 selected government schemes.">
+  <title data-i18n-title="title.login">Log in · CivicConnect</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="login" data-base="">
+  <div id="app-header"></div>
+  <main id="main" tabindex="-1">
+
+    <div class="auth-wrap">
+      <div class="auth-art" id="auth-art">
+        <div class="quote"><p class="h5 text-white mb-1" data-i18n="auth.quote">“One place to understand the schemes meant for you.”</p><p class="small mb-0" style="color:#C9D6E6" data-i18n="auth.quoteSub">Bilingual · 15 curated schemes · Official sources</p></div>
+      </div>
+      <div class="auth-form">
+        <div class="auth-card">
+          <div id="auth-reason"></div>
+          <h1 class="h2 mb-1" data-i18n="auth.h1">Welcome to CivicConnect</h1>
+          <p class="text-muted" data-i18n="auth.sub">Log in to save schemes and see your matches.</p>
+          <ul class="nav nav-pills auth-tabs nav-fill mb-4" role="tablist">
+            <li class="nav-item" role="presentation"><button class="nav-link active" id="tab-login" data-bs-toggle="pill" data-bs-target="#pane-login" type="button" role="tab" aria-controls="pane-login" aria-selected="true" data-i18n="auth.login">Log in</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="tab-register" data-bs-toggle="pill" data-bs-target="#pane-register" type="button" role="tab" aria-controls="pane-register" aria-selected="false" data-i18n="auth.create">Create account</button></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="pane-login" role="tabpanel" aria-labelledby="tab-login">
+              <form id="login-form" novalidate>
+                <div id="login-error" class="alert alert-danger d-none" role="alert"></div>
+                <div class="mb-3"><label class="form-label required" for="l-email" data-i18n="auth.email">Email</label><input type="email" class="form-control" id="l-email" autocomplete="email" required><div class="invalid-feedback" data-i18n="auth.emailErr">Enter a valid email address.</div></div>
+                <div class="mb-2"><label class="form-label required" for="l-pass" data-i18n="auth.password">Password</label>
+                  <div class="input-group"><input type="password" class="form-control" id="l-pass" autocomplete="current-password" required><button class="btn btn-outline-primary" type="button" data-toggle-pass="l-pass" aria-label="Show password" data-i18n-aria="auth.show"><i class="bi bi-eye" aria-hidden="true"></i></button><div class="invalid-feedback" data-i18n="auth.passErr">Enter your password.</div></div></div>
+                <div class="text-end mb-3"><a href="#" id="forgot" class="small" data-i18n="auth.forgot">Forgot password?</a></div>
+                <button class="btn btn-primary w-100 btn-lg" type="submit"><span data-i18n="auth.login">Log in</span></button>
+              </form>
+            </div>
+            <div class="tab-pane fade" id="pane-register" role="tabpanel" aria-labelledby="tab-register">
+              <form id="register-form" novalidate>
+                <div id="register-error" class="alert alert-danger d-none" role="alert"></div>
+                <div class="mb-3"><label class="form-label required" for="r-name" data-i18n="auth.name">Full name</label><input class="form-control" id="r-name" autocomplete="name" required minlength="2" maxlength="100"><div class="invalid-feedback" data-i18n="auth.nameErr">Enter your name.</div></div>
+                <div class="mb-3"><label class="form-label required" for="r-email" data-i18n="auth.email">Email</label><input type="email" class="form-control" id="r-email" autocomplete="email" required><div class="invalid-feedback" data-i18n="auth.emailErr">Enter a valid email address.</div></div>
+                <div class="mb-3"><label class="form-label required" for="r-pass" data-i18n="auth.password">Password</label>
+                  <div class="input-group"><input type="password" class="form-control" id="r-pass" autocomplete="new-password" required minlength="8" aria-describedby="pass-help"><button class="btn btn-outline-primary" type="button" data-toggle-pass="r-pass" aria-label="Show password" data-i18n-aria="auth.show"><i class="bi bi-eye" aria-hidden="true"></i></button><div class="invalid-feedback" data-i18n="auth.passLen">Use at least 8 characters.</div></div>
+                  <div class="progress mt-2" style="height:6px" aria-hidden="true"><div class="progress-bar" id="pass-meter" style="width:0"></div></div>
+                  <div id="pass-help" class="form-text"><span id="pass-label" data-i18n="auth.passHint">At least 8 characters, with a number.</span></div></div>
+                <div class="mb-3"><label class="form-label required" for="r-pass2" data-i18n="auth.confirm">Confirm password</label><input type="password" class="form-control" id="r-pass2" autocomplete="new-password" required><div class="invalid-feedback" data-i18n="auth.matchErr">Passwords do not match.</div></div>
+                <button class="btn btn-primary w-100 btn-lg" type="submit"><span data-i18n="auth.create">Create account</span></button>
+              </form>
+            </div>
+          </div>
+          <div class="ok-box mt-4 small"><i class="bi bi-shield-lock" aria-hidden="true"></i><span data-i18n="auth.privacy">We only ask what’s needed to suggest schemes. We never ask for document copies.</span></div>
+          <div class="panel mt-3 p-3">
+            <p class="small fw-semibold mb-2"><i class="bi bi-person-badge" aria-hidden="true"></i> <span data-i18n="auth.demo">Demo accounts (for reviewers)</span></p>
+            <div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-sm btn-outline-primary" data-demo="citizen"><i class="bi bi-person" aria-hidden="true"></i><span data-i18n="auth.demoCitizen">Log in as Citizen</span></button><button type="button" class="btn btn-sm btn-outline-primary" data-demo="admin"><i class="bi bi-shield-lock" aria-hidden="true"></i><span data-i18n="auth.demoAdmin">Log in as Admin</span></button></div>
+            <p class="small text-muted mb-0 mt-2">citizen@demo.in / demo123 · admin@demo.in / admin123</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div id="app-footer"></div>
+
+  <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/lang/ta.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/match.js"></script>
+  <script src="assets/js/chatbot.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/pages/login.js"></script>
+</body>
+</html>

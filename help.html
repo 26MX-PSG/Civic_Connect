@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CivicConnect — bilingual guide to 15 selected government schemes.">
+  <title data-i18n-title="title.help">Help & FAQs · CivicConnect</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="help" data-base="">
+  <div id="app-header"></div>
+  <main id="main" tabindex="-1">
+
+    <div class="container page-head">
+      <h1 data-i18n="help.h1">Help &amp; FAQs</h1>
+      <p data-i18n="help.sub">Search common questions, look up where to get a document, or ask the assistant.</p>
+    </div>
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <form class="search-bar mb-3" id="faq-form" role="search"><i class="bi bi-search" aria-hidden="true"></i><label for="faq-q" class="visually-hidden" data-i18n="help.searchLabel">Search FAQs</label><input id="faq-q" class="form-control" placeholder="Search FAQs" data-i18n-ph="help.searchPh" autocomplete="off"></form>
+          <div class="d-flex flex-wrap gap-2 mb-3" id="topics" role="group" aria-label="Topics" data-i18n-aria="help.topics"></div>
+          <p class="small text-muted" id="faq-count" aria-live="polite"></p>
+          <div class="accordion mb-5" id="faq-list"></div>
+
+          <section id="doc-guide" class="panel" aria-labelledby="dg-h">
+            <h2 id="dg-h" class="h3" data-i18n="help.docGuide">Document guide</h2>
+            <p class="text-muted small" data-i18n="help.docGuideSub">Where you can usually get each document. General guidance — always confirm with the issuing office.</p>
+            <div id="doc-list"></div>
+          </section>
+        </div>
+        <div class="col-lg-5">
+          <div class="position-sticky d-grid gap-3" style="top:90px">
+            <section class="card bot-inline" aria-labelledby="hb-h">
+              <header class="bot-head"><div class="bot-avatar" aria-hidden="true"><i class="bi bi-chat-square-text"></i></div><div><h2 id="hb-h" data-i18n="bot.title">CivicConnect Assistant</h2><p data-i18n="bot.sub">Answers from our FAQs &amp; scheme documents</p></div></header>
+              <div class="bot-body" id="help-bot"></div>
+            </section>
+            <div class="panel"><h2 class="h5" data-i18n="help.stillH">Still need help?</h2><p class="small mb-0" data-i18n="help.stillP">Visit your nearest e-Sevai centre or Taluk office, or use the helpline listed on the official portal of each scheme.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div id="app-footer"></div>
+
+  <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/lang/ta.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/match.js"></script>
+  <script src="assets/js/chatbot.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/pages/help.js"></script>
+</body>
+</html>

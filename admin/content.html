@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CivicConnect — bilingual guide to 15 selected government schemes.">
+  <title data-i18n-title="title.adminContent">Categories, FAQs & chatbot · CivicConnect</title>
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body data-page="admin-content" data-base="../">
+  <div id="app-header"></div>
+  <main id="main" tabindex="-1">
+
+      <h1 class="h2 mb-1" data-i18n="ac.h1">Categories, FAQs &amp; chatbot</h1><p class="text-muted" data-i18n="ac.sub">The chatbots answer only from this content and the scheme pages — keep it accurate.</p>
+      <ul class="nav cc-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#t-cats" type="button" role="tab" data-tab="categories"><i class="bi bi-grid" aria-hidden="true"></i> <span data-i18n="nav.categories">Categories</span></button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-faqs" type="button" role="tab" data-tab="faqs"><i class="bi bi-question-circle" aria-hidden="true"></i> <span>FAQs</span></button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-bot" type="button" role="tab" data-tab="chatbot"><i class="bi bi-robot" aria-hidden="true"></i> <span data-i18n="ac.botTab">Chatbot knowledge &amp; test</span></button></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="t-cats" role="tabpanel"><div class="table-wrap"><div class="table-responsive"><table class="table table-cc"><thead><tr><th data-i18n="ac.icon">Icon</th><th data-i18n="ac.nameEn">Name (English)</th><th data-i18n="ac.nameTa">Name (Tamil)</th><th data-i18n="ac.count">Active schemes</th><th data-i18n="ac.enabled">Enabled</th><th class="text-end" data-i18n="as.actions">Actions</th></tr></thead><tbody id="cat-rows"></tbody></table></div></div></div>
+        <div class="tab-pane fade" id="t-faqs" role="tabpanel"><div class="d-flex justify-content-end mb-3"><button class="btn btn-primary" id="faq-add"><i class="bi bi-plus-lg" aria-hidden="true"></i><span data-i18n="ac.addFaq">Add FAQ</span></button></div><div class="table-wrap"><div class="table-responsive"><table class="table table-cc"><thead><tr><th data-i18n="ac.question">Question</th><th data-i18n="ac.topic">Topic</th><th data-i18n="filter.category">Category</th><th data-i18n="ac.ta">Tamil</th><th data-i18n="ac.enabled">Enabled</th><th class="text-end" data-i18n="as.actions">Actions</th></tr></thead><tbody id="faq-rows"></tbody></table></div></div></div>
+        <div class="tab-pane fade" id="t-bot" role="tabpanel">
+          <div class="row g-4">
+            <div class="col-xl-5"><section class="panel h-100"><h2 class="h4" data-i18n="ac.kbH">What the chatbots read</h2><p class="small text-muted" data-i18n="ac.kbP">Both assistants answer only from these sources and always show which one they used.</p><div id="kb-summary"></div></section></div>
+            <div class="col-xl-7"><section class="panel h-100"><h2 class="h4" data-i18n="ac.testH">Test console</h2><p class="small text-muted" data-i18n="ac.testP">Type a question to see how it is analysed: keywords, synonyms, detected scheme or document, intent and the FAQ scores.</p>
+              <form id="test-form" class="d-flex flex-wrap gap-2 mb-3"><label class="visually-hidden" for="test-q">Question</label><input id="test-q" class="form-control" style="flex:1 1 240px" value="Where can I get patta for PM-KISAN?"><select id="test-scope" class="form-select" style="width:auto;max-width:240px" aria-label="Scope"></select><button class="btn btn-primary" type="submit" data-i18n="ac.run">Analyse</button></form>
+              <div id="test-out"></div></section></div>
+            <div class="col-12"><section class="panel"><h2 class="h4" data-i18n="ac.synH">Keyword synonyms (concepts)</h2><p class="small text-muted" data-i18n="ac.synP">Words in each row are treated as the same keyword. Tamil entries match by word start, so suffixes are handled.</p><div id="syn-list"></div></section></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="em-h" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-scrollable"><form class="modal-content" id="edit-form" novalidate>
+        <div class="modal-header"><h2 class="modal-title h5" id="em-h"></h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria="common.close"></button></div>
+        <div class="modal-body" id="em-body"></div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" data-i18n="common.cancel">Cancel</button><button class="btn btn-primary" type="submit" data-i18n="common.save">Save</button></div>
+      </form></div></div>
+  </main>
+  <div id="app-footer"></div>
+
+  <script src="../assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/lang/ta.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/store.js"></script>
+  <script src="../assets/js/match.js"></script>
+  <script src="../assets/js/chatbot.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/pages/admin-content.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CivicConnect — bilingual guide to 15 selected government schemes.">
+  <title data-i18n-title="title.adminSchemes">Manage schemes · CivicConnect</title>
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body data-page="admin-schemes" data-base="../">
+  <div id="app-header"></div>
+  <main id="main" tabindex="-1">
+
+      <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3"><div><h1 class="h2 mb-1" data-i18n="as.h1">Schemes</h1><p class="text-muted mb-0" data-i18n="as.sub">The curated list is limited to 15 schemes. Deactivate instead of deleting.</p></div>
+        <span class="d-inline-block" tabindex="0" id="add-wrap"><button class="btn btn-primary" id="add-btn"><i class="bi bi-plus-lg" aria-hidden="true"></i><span data-i18n="as.add">Add scheme</span></button></span></div>
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <div class="search-bar flex-grow-1" style="max-width:420px"><i class="bi bi-search" aria-hidden="true"></i><label class="visually-hidden" for="as-q" data-i18n="as.search">Search schemes</label><input id="as-q" class="form-control" placeholder="Search schemes" data-i18n-ph="as.search"></div>
+        <label class="visually-hidden" for="as-status" data-i18n="as.status">Status</label><select id="as-status" class="form-select" style="width:auto"><option value="" data-i18n="as.allStatus">All statuses</option><option value="active" data-i18n="status.active">Active</option><option value="inactive" data-i18n="status.inactive">Inactive</option><option value="overdue" data-i18n="as.overdueOnly">Verification overdue</option></select>
+      </div>
+      <div class="table-wrap"><div class="table-responsive"><table class="table table-cc"><thead><tr><th data-i18n="ad.scheme">Scheme</th><th data-i18n="filter.category">Category</th><th data-i18n="filter.type">Type</th><th data-i18n="as.status">Status</th><th data-i18n="as.verified">Last verified</th><th class="text-end" data-i18n="as.actions">Actions</th></tr></thead><tbody id="as-rows"></tbody></table></div></div>
+      <nav class="d-flex justify-content-between align-items-center mt-3" aria-label="Pagination"><span class="small text-muted" id="as-page-info"></span><div class="btn-group" id="as-pager"></div></nav>
+
+      <div class="modal fade" id="scheme-modal" tabindex="-1" aria-labelledby="sm-h" aria-hidden="true"><div class="modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen-lg-down"><form class="modal-content" id="scheme-form" novalidate>
+        <div class="modal-header"><h2 class="modal-title h4" id="sm-h">Edit scheme</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria="common.close"></button></div>
+        <div class="modal-body" id="sm-body"></div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" data-i18n="common.cancel">Cancel</button><button class="btn btn-primary" type="submit"><i class="bi bi-check2" aria-hidden="true"></i><span data-i18n="common.save">Save</span></button></div>
+      </form></div></div>
+
+      <div class="modal fade" id="confirm-modal" tabindex="-1" aria-labelledby="cm-h" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+        <div class="modal-header"><h2 class="modal-title h5" id="cm-h" data-i18n="as.deactH">Deactivate this scheme?</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria="common.close"></button></div>
+        <div class="modal-body"><p id="cm-text"></p><p class="small text-muted mb-0" data-i18n="as.deactP">Citizens who saved it will see “No longer active”, and opted-in users get a notification. You can activate it again at any time.</p></div>
+        <div class="modal-footer"><button class="btn btn-outline-primary" data-bs-dismiss="modal" data-i18n="common.cancel">Cancel</button><button class="btn btn-danger" id="cm-go" data-i18n="as.deactivate">Deactivate</button></div>
+      </div></div></div>
+  </main>
+  <div id="app-footer"></div>
+
+  <script src="../assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/lang/ta.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/store.js"></script>
+  <script src="../assets/js/match.js"></script>
+  <script src="../assets/js/chatbot.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/pages/admin-schemes.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CivicConnect — bilingual guide to 15 selected government schemes.">
+  <title data-i18n-title="title.scheme">Scheme details · CivicConnect</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="scheme" data-base="">
+  <div id="app-header"></div>
+  <main id="main" tabindex="-1">
+
+    <div id="scheme-root"><div class="container py-5"><div class="skeleton mb-3" style="height:28px;width:60%"></div><div class="skeleton mb-2" style="height:18px;width:80%"></div><div class="skeleton" style="height:200px"></div></div></div>
+    <div class="modal fade" id="leave-modal" tabindex="-1" aria-labelledby="leave-h" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border-radius:16px">
+      <div class="modal-header"><h2 class="modal-title h5" id="leave-h" data-i18n="detail.leaveH">You are leaving CivicConnect</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria="common.close"></button></div>
+      <div class="modal-body"><p data-i18n="detail.leaveP">You’re going to the official government website. Apply there — CivicConnect does not receive your application.</p><p class="small text-muted mb-0" id="leave-url"></p></div>
+      <div class="modal-footer"><button class="btn btn-outline-primary" data-bs-dismiss="modal" data-i18n="common.cancel">Cancel</button><a class="btn btn-primary" id="leave-go" target="_blank" rel="noopener"><span data-i18n="detail.continue">Continue to portal</span><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i></a></div>
+    </div></div></div>
+  </main>
+  <div id="app-footer"></div>
+
+  <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/lang/ta.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/match.js"></script>
+  <script src="assets/js/chatbot.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/pages/scheme.js"></script>
+</body>
+</html>

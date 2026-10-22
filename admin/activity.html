@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CivicConnect — bilingual guide to 15 selected government schemes.">
+  <title data-i18n-title="title.adminActivity">Queries, feedback & users · CivicConnect</title>
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body data-page="admin-activity" data-base="../">
+  <div id="app-header"></div>
+  <main id="main" tabindex="-1">
+
+      <h1 class="h2 mb-1" data-i18n="aa.h1">Queries, feedback &amp; users</h1><p class="text-muted" data-i18n="aa.sub">See what citizens searched or asked without finding an answer, how useful each scheme page is, and manage accounts.</p>
+      <ul class="nav cc-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#t-q" type="button" role="tab" data-tab="queries"><i class="bi bi-search" aria-hidden="true"></i> <span data-i18n="aa.queries">Unanswered queries</span> <span class="badge-cc b-new" id="q-badge"></span></button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-f" type="button" role="tab" data-tab="feedback"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i> <span data-i18n="aa.feedback">Feedback</span></button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-u" type="button" role="tab" data-tab="users"><i class="bi bi-people" aria-hidden="true"></i> <span data-i18n="aa.users">Users</span></button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-n" type="button" role="tab" data-tab="announce"><i class="bi bi-megaphone" aria-hidden="true"></i> <span data-i18n="aa.announce">Announcements</span></button></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="t-q" role="tabpanel">
+          <div class="d-flex flex-wrap gap-2 mb-3" id="q-filters"></div>
+          <div class="table-wrap"><div class="table-responsive"><table class="table table-cc"><thead><tr><th data-i18n="aa.query">Query</th><th data-i18n="aa.from">From</th><th data-i18n="aa.times">Times</th><th data-i18n="aa.last">Last asked</th><th data-i18n="as.status">Status</th></tr></thead><tbody id="q-rows"></tbody></table></div></div>
+        </div>
+        <div class="tab-pane fade" id="t-f" role="tabpanel"><div class="table-wrap"><div class="table-responsive"><table class="table table-cc"><thead><tr><th data-i18n="ad.scheme">Scheme</th><th data-i18n="aa.yes">Yes</th><th data-i18n="aa.no">No</th><th data-i18n="ad.useful">% useful</th><th data-i18n="aa.comments">Comments</th></tr></thead><tbody id="f-rows"></tbody></table></div></div></div>
+        <div class="tab-pane fade" id="t-u" role="tabpanel">
+          <div class="ok-box mb-3 small"><i class="bi bi-shield-lock" aria-hidden="true"></i><span data-i18n="aa.privacy">Only name, email and account status are shown. Income, disability and other profile details are never visible to admins.</span></div>
+          <div class="table-wrap"><div class="table-responsive"><table class="table table-cc"><thead><tr><th data-i18n="auth.name">Full name</th><th data-i18n="auth.email">Email</th><th data-i18n="aa.joined">Joined</th><th data-i18n="as.status">Status</th><th class="text-end" data-i18n="as.actions">Actions</th></tr></thead><tbody id="u-rows"></tbody></table></div></div>
+        </div>
+        <div class="tab-pane fade" id="t-n" role="tabpanel">
+          <form class="panel" id="announce-form" style="max-width:720px" novalidate>
+            <h2 class="h4" data-i18n="aa.sendH">Send an announcement</h2><p class="small text-muted" data-i18n="aa.sendP">Appears in every citizen’s dashboard notifications. Users who opted in also get an email (Nodemailer in the real backend).</p>
+            <div class="mb-3"><label class="form-label required" for="an-en" data-i18n="aa.titleEn">Title (English)</label><input id="an-en" class="form-control" maxlength="150" required><div class="invalid-feedback" data-i18n="common.required">This field is required.</div></div>
+            <div class="mb-3"><label class="form-label" for="an-ta" data-i18n="aa.titleTa">Title (Tamil)</label><input id="an-ta" class="form-control" maxlength="150" lang="ta"></div>
+            <button class="btn btn-primary" type="submit"><i class="bi bi-send" aria-hidden="true"></i><span data-i18n="aa.send">Send to all citizens</span></button>
+          </form>
+        </div>
+      </div>
+  </main>
+  <div id="app-footer"></div>
+
+  <script src="../assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/lang/ta.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/store.js"></script>
+  <script src="../assets/js/match.js"></script>
+  <script src="../assets/js/chatbot.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/pages/admin-activity.js"></script>
+</body>
+</html>
