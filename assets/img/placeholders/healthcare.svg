@@ -1,6 +1,49 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
-<rect width="800" height="500" fill="#FDECEA"/>
-<circle cx="690" cy="80" r="150" fill="#C2410C" opacity=".07"/><circle cx="110" cy="450" r="120" fill="#C2410C" opacity=".06"/>
-<circle cx="400" cy="250" r="125" fill="#fff" opacity=".85"/>
-<g transform="translate(328,178) scale(9.0)" fill="#C2410C" opacity="1"><path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053.918 3.995.78 5.323 1.508 7H.43c-2.128-5.697 4.165-8.83 7.394-5.857q.09.083.176.171a3 3 0 0 1 .176-.17c3.23-2.974 9.522.159 7.394 5.856h-1.078c.728-1.677.59-3.005.108-3.947C13.486.878 10.4.28 8.717 2.01zM2.212 10h1.315C4.593 11.183 6.05 12.458 8 13.795c1.949-1.337 3.407-2.612 4.473-3.795h1.315c-1.265 1.566-3.14 3.25-5.788 5-2.648-1.75-4.523-3.434-5.788-5"/><path d="M10.464 3.314a.5.5 0 0 0-.945.049L7.921 8.956 6.464 5.314a.5.5 0 0 0-.88-.091L3.732 8H.5a.5.5 0 0 0 0 1H4a.5.5 0 0 0 .416-.223l1.473-2.209 1.647 4.118a.5.5 0 0 0 .945-.049l1.598-5.593 1.457 3.642A.5.5 0 0 0 12 9h3.5a.5.5 0 0 0 0-1h-3.162z"/></g>
+  <defs>
+    <linearGradient id="hcBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAF7F5"/>
+      <stop offset="50%" stop-color="#F3ECE6"/>
+      <stop offset="100%" stop-color="#EBE2DA"/>
+    </linearGradient>
+    <radialGradient id="hcGlow" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#E6E0F0" stop-opacity="0.7"/>
+      <stop offset="60%" stop-color="#FAF7F5" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="hcShadow" x="-20%" y="-15%" width="140%" height="145%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#4A3425" flood-opacity="0.14"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#4A3425" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#hcBg)"/>
+  <rect width="800" height="500" fill="url(#hcGlow)"/>
+
+  <!-- Orbits -->
+  <circle cx="690" cy="90" r="140" fill="#E6E0F0" opacity="0.35"/>
+  <circle cx="110" cy="420" r="160" fill="#6F4E37" opacity="0.05"/>
+  <g stroke="#E5E4E2" stroke-width="1.5" opacity="0.4" fill="none">
+    <circle cx="400" cy="230" r="150" stroke-dasharray="6 6"/>
+    <circle cx="400" cy="230" r="180"/>
+  </g>
+
+  <!-- Central Card -->
+  <g transform="translate(290, 120)" filter="url(#hcShadow)">
+    <rect width="220" height="220" rx="36" fill="#FFFFFF" stroke="#E5E4E2" stroke-width="1.5"/>
+    <rect x="20" y="20" width="180" height="180" rx="28" fill="#FBF9F7"/>
+
+    <!-- Heartbeat / Health Pulse Icon -->
+    <g transform="translate(74, 52) scale(4.5)">
+      <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053.918 3.995.78 5.323 1.508 7H.43c-2.128-5.697 4.165-8.83 7.394-5.857q.09.083.176.171a3 3 0 0 1 .176-.17c3.23-2.974 9.522.159 7.394 5.856h-1.078c.728-1.677.59-3.005.108-3.947C13.486.878 10.4.28 8.717 2.01z" fill="#6F4E37"/>
+      <path d="M10.464 3.314a.5.5 0 0 0-.945.049L7.921 8.956 6.464 5.314a.5.5 0 0 0-.88-.091L3.732 8H.5a.5.5 0 0 0 0 1H4a.5.5 0 0 0 .416-.223l1.473-2.209 1.647 4.118a.5.5 0 0 0 .945-.049l1.598-5.593 1.457 3.642A.5.5 0 0 0 12 9h3.5a.5.5 0 0 0 0-1h-3.162z" fill="#8B6347"/>
+    </g>
+
+    <rect x="70" y="184" width="80" height="8" rx="4" fill="#C9BEE0"/>
+  </g>
+
+  <!-- Category Label Banner -->
+  <g transform="translate(400, 400)">
+    <rect x="-100" y="0" width="200" height="34" rx="17" fill="#FFFFFF" stroke="#E5E4E2" stroke-width="1.2"/>
+    <circle cx="-78" cy="17" r="5" fill="#6F4E37"/>
+    <text x="7" y="22" font-family="system-ui, -apple-system, 'Inter', sans-serif" font-size="12" font-weight="700" fill="#6F4E37" letter-spacing="1.2" text-anchor="middle">HEALTHCARE &amp; MEDICAL</text>
+  </g>
 </svg>
