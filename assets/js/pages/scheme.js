@@ -2,8 +2,13 @@
 (function () {
   var U = CC.ui, T = CC.i18n.t, S = CC.store, ta = CC.i18n.lang === 'ta';
   var root = U.$('#scheme-root');
-  var s = S.scheme(U.param('slug') || U.param('id'));
-  if (!s) { root.innerHTML = '<div class="container py-5">' + U.empty('journal-x', T('detail.notFound', 'Scheme not found'), T('detail.notFoundT', 'This scheme may have been removed or the link is wrong.'), '<a class="btn btn-primary" href="schemes.html">' + U.esc(T('home.browse', 'Browse All 15')) + '</a>') + '</div>'; return; }
+  var slugParam = U.param('slug') || U.param('id');
+  if (!slugParam) {
+    location.replace('schemes.html');
+    return;
+  }
+  var s = S.scheme(slugParam);
+  if (!s) { root.innerHTML = '<div class="container py-5 text-center">' + U.empty('journal-x', T('detail.notFound', 'Scheme not found'), T('detail.notFoundT', 'This scheme may have been removed or the link is wrong.'), '<div class="d-flex justify-content-center gap-2 mt-3"><a class="btn btn-primary" href="schemes.html">' + U.esc(T('home.browse', 'Browse All 15 Schemes')) + '</a><a class="btn btn-light-outline" href="index.html">' + U.esc(T('nav.home', 'Go Home')) + '</a></div>') + '</div>'; return; }
   document.title = U.sName(s) + ' · CivicConnect';
   var u = S.currentUser(), prof = u ? S.profile(u.id) : null, res = prof ? CC.match.evaluate(s, prof) : null;
   var c = S.category(s.category_id), saved = u ? S.isSaved(u.id, s.id) : false;

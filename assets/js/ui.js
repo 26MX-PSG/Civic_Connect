@@ -56,12 +56,13 @@ CC.ui = (function () {
       if (opts.result.missing.length) extra += '<div class="why"><span class="small text-muted me-1">' + esc(T('rec.missing', 'Missing info')) + ':</span>' + opts.result.missing.map(function (m) { return '<a class="chip chip-missing" href="' + base + 'profile.html#f-' + m + '"><i class="bi bi-plus" aria-hidden="true"></i>' + esc(T('field.' + m, m)) + '</a>'; }).join('') + '</div>';
     }
     if (opts.progress) extra += '<div><div class="d-flex justify-content-between small mb-1"><span>' + esc(T('docs.progress', 'Documents ready')) + '</span><span>' + opts.progress.done + ' / ' + opts.progress.total + '</span></div><div class="progress" role="progressbar" aria-valuenow="' + opts.progress.done + '" aria-valuemin="0" aria-valuemax="' + opts.progress.total + '" aria-label="' + esc(T('docs.progress', 'Documents ready')) + '"><div class="progress-bar" style="width:' + (opts.progress.total ? opts.progress.done * 100 / opts.progress.total : 0) + '%"></div></div></div>';
-    return '<article class="card scheme-card' + (s.is_active ? '' : ' inactive') + '">' +
+    var sUrl = base + 'scheme.html?slug=' + encodeURIComponent(s.slug);
+    return '<article class="card scheme-card' + (s.is_active ? '' : ' inactive') + '" data-href="' + sUrl + '" onclick="if(!event.target.closest(\'button, [data-save], [data-remove], .chip-missing\')) window.location.href=\'' + sUrl + '\'" style="cursor:pointer">' +
       '<button type="button" class="bookmark" data-save="' + s.id + '" aria-pressed="' + saved + '" aria-label="' + esc((saved ? T('save.remove', 'Remove from saved') : T('save.add', 'Save scheme')) + ': ' + sName(s)) + '"><i class="bi ' + (saved ? 'bi-bookmark-fill' : 'bi-bookmark') + '" aria-hidden="true"></i></button>' +
       '<div class="meta">' + levelBadge(s) + '<span class="badge-cc b-cat">' + esc(cName(c)) + '</span>' + (s.is_active ? '' : '<span class="badge-cc b-inactive">' + esc(T('status.noLonger', 'No longer active')) + '</span>') + '</div>' +
-      '<h3><a href="' + base + 'scheme.html?slug=' + s.slug + '">' + esc(sName(s)) + '</a></h3>' +
+      '<h3><a href="' + sUrl + '">' + esc(sName(s)) + '</a></h3>' +
       '<p>' + esc(sShort(s)) + '</p>' + extra +
-      '<div class="foot"><span class="text-muted small"><i class="bi bi-patch-check" aria-hidden="true"></i> ' + esc(T('common.verified', 'Verified')) + ' ' + esc(date(s.last_verified_on)) + '</span><span class="view">' + esc(T('common.viewDetails', 'View details')) + ' <i class="bi bi-arrow-right" aria-hidden="true"></i></span></div>' +
+      '<div class="foot"><span class="text-muted small"><i class="bi bi-patch-check" aria-hidden="true"></i> ' + esc(T('common.verified', 'Verified')) + ' ' + esc(date(s.last_verified_on)) + '</span><a class="view" href="' + sUrl + '">' + esc(T('common.viewDetails', 'View details')) + ' <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>' +
       (opts.remove ? '<button type="button" class="btn btn-sm btn-ghost align-self-start" style="position:relative;z-index:2" data-remove="' + s.id + '"><i class="bi bi-trash3" aria-hidden="true"></i>' + esc(T('saved.remove', 'Remove')) + '</button>' : '') +
       '</article>';
   }
@@ -78,12 +79,26 @@ CC.ui = (function () {
         if (onChange) onChange(on, b.getAttribute('data-save'));
       });
     });
+    $$('.scheme-card[data-href]', root).forEach(function (card) {
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('button, [data-save], [data-remove], .chip-missing')) return;
+        var href = card.getAttribute('data-href');
+        if (href) location.href = href;
+      });
+    });
   }
   function catCard(c) {
     return '<a class="card cat-card" href="' + base + 'schemes.html?category=' + c.slug + '"><span class="cat-icon"><i class="bi bi-' + c.icon + '" aria-hidden="true"></i></span><span><span class="name d-block">' + esc(cName(c)) + '</span><span class="count">' + c.scheme_count + ' ' + esc(c.scheme_count === 1 ? T('common.scheme', 'scheme') : T('common.schemes', 'schemes')) + '</span></span></a>';
   }
   function catTile(c) {
-    return '<a class="card cat-tile" href="' + base + 'schemes.html?category=' + c.slug + '">' + img('cat', c.slug, '') + '<span class="body"><span class="cat-icon"><i class="bi bi-' + c.icon + '" aria-hidden="true"></i></span><span><span class="name d-block fw-semibold">' + esc(cName(c)) + '</span><span class="count small text-muted">' + c.scheme_count + ' ' + esc(c.scheme_count === 1 ? T('common.scheme', 'scheme') : T('common.schemes', 'schemes')) + '</span></span></span></a>';
+    return '<a class="card cat-tile" href="' + base + 'schemes.html?category=' + c.slug + '">' +
+      img('cat', c.slug, '') +
+      '<span class="body">' +
+        '<span class="cat-icon"><i class="bi bi-' + c.icon + '" aria-hidden="true"></i></span>' +
+        '<span><span class="name d-block">' + esc(cName(c)) + '</span><span class="count">' + c.scheme_count + ' ' + esc(c.scheme_count === 1 ? T('common.scheme', 'scheme') : T('common.schemes', 'schemes')) + '</span></span>' +
+        '<span class="cat-arrow ms-auto" aria-hidden="true"><i class="bi bi-chevron-right"></i></span>' +
+      '</span>' +
+    '</a>';
   }
 
   /* ---------- states ---------- */

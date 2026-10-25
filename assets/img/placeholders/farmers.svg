@@ -1,6 +1,50 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
-<rect width="800" height="500" fill="#E8F4E5"/>
-<circle cx="690" cy="80" r="150" fill="#2F7D32" opacity=".07"/><circle cx="110" cy="450" r="120" fill="#2F7D32" opacity=".06"/>
-<circle cx="400" cy="250" r="125" fill="#fff" opacity=".85"/>
-<g transform="translate(328,178) scale(9.0)" fill="#2F7D32" opacity="1"><path d="M8.416.223a.5.5 0 0 0-.832 0l-3 4.5A.5.5 0 0 0 5 5.5h.098L3.076 8.735A.5.5 0 0 0 3.5 9.5h.191l-1.638 3.276a.5.5 0 0 0 .447.724H7V16h2v-2.5h4.5a.5.5 0 0 0 .447-.724L12.31 9.5h.191a.5.5 0 0 0 .424-.765L10.902 5.5H11a.5.5 0 0 0 .416-.777zM6.437 4.758A.5.5 0 0 0 6 4.5h-.066L8 1.401 10.066 4.5H10a.5.5 0 0 0-.424.765L11.598 8.5H11.5a.5.5 0 0 0-.447.724L12.69 12.5H3.309l1.638-3.276A.5.5 0 0 0 4.5 8.5h-.098l2.022-3.235a.5.5 0 0 0 .013-.507"/></g>
+  <defs>
+    <linearGradient id="fmBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAF7F5"/>
+      <stop offset="50%" stop-color="#F3ECE6"/>
+      <stop offset="100%" stop-color="#EBE2DA"/>
+    </linearGradient>
+    <radialGradient id="fmGlow" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#E6E0F0" stop-opacity="0.7"/>
+      <stop offset="60%" stop-color="#FAF7F5" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="fmShadow" x="-20%" y="-15%" width="140%" height="145%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#4A3425" flood-opacity="0.14"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#4A3425" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#fmBg)"/>
+  <rect width="800" height="500" fill="url(#fmGlow)"/>
+
+  <!-- Decorative Orbit Lines -->
+  <circle cx="690" cy="90" r="140" fill="#E6E0F0" opacity="0.35"/>
+  <circle cx="110" cy="420" r="160" fill="#6F4E37" opacity="0.05"/>
+  <g stroke="#E5E4E2" stroke-width="1.5" opacity="0.4" fill="none">
+    <circle cx="400" cy="230" r="150" stroke-dasharray="6 6"/>
+    <circle cx="400" cy="230" r="180"/>
+  </g>
+
+  <!-- Central Card -->
+  <g transform="translate(290, 120)" filter="url(#fmShadow)">
+    <rect width="220" height="220" rx="36" fill="#FFFFFF" stroke="#E5E4E2" stroke-width="1.5"/>
+    <rect x="20" y="20" width="180" height="180" rx="28" fill="#FBF9F7"/>
+
+    <!-- Tree / Agricultural Plant Icon -->
+    <g transform="translate(74, 52) scale(4.5)">
+      <path d="M8.416.223a.5.5 0 0 0-.832 0l-3 4.5A.5.5 0 0 0 5 5.5h.098L3.076 8.735A.5.5 0 0 0 3.5 9.5h.191l-1.638 3.276a.5.5 0 0 0 .447.724H7V16h2v-2.5h4.5a.5.5 0 0 0 .447-.724L12.31 9.5h.191a.5.5 0 0 0 .424-.765L10.902 5.5H11a.5.5 0 0 0 .416-.777z" fill="#6F4E37"/>
+      <!-- Soft Lavender Sun Accent -->
+      <circle cx="14" cy="3" r="1.8" fill="#C9BEE0"/>
+    </g>
+
+    <rect x="70" y="184" width="80" height="8" rx="4" fill="#6F4E37"/>
+  </g>
+
+  <!-- Category Label Banner -->
+  <g transform="translate(400, 400)">
+    <rect x="-85" y="0" width="170" height="34" rx="17" fill="#FFFFFF" stroke="#E5E4E2" stroke-width="1.2"/>
+    <circle cx="-63" cy="17" r="5" fill="#6F4E37"/>
+    <text x="7" y="22" font-family="system-ui, -apple-system, 'Inter', sans-serif" font-size="12" font-weight="700" fill="#6F4E37" letter-spacing="1.2" text-anchor="middle">FARMERS &amp; AGRI</text>
+  </g>
 </svg>

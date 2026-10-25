@@ -80,7 +80,11 @@ CC.store = (function () {
     return list;
   }
   function scheme(idOrSlug) {
-    return db().schemes.find(function (s) { return s.id == idOrSlug || s.slug === idOrSlug; }) || null;
+    var s = db().schemes.find(function (x) { return x.id == idOrSlug || x.slug === idOrSlug; });
+    if (!s && CC.seed && CC.seed.schemes) {
+      s = CC.seed.schemes.find(function (x) { return x.id == idOrSlug || x.slug === idOrSlug; });
+    }
+    return s || null;
   }
   function doc(id) { return db().documents.find(function (d) { return d.id === id; }) || null; }
 
