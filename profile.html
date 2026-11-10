@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CivicConnect — bilingual guide to 15 selected government schemes.">
+  <title data-i18n-title="title.profile">My profile · CivicConnect</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="profile" data-base="">
+  <div id="app-header"></div>
+  <main id="main" tabindex="-1">
+
+    <div class="container page-head">
+      <div class="d-flex flex-wrap gap-4 align-items-center justify-content-between">
+        <div><h1 data-i18n="profile.h1">Your profile</h1><p data-i18n="profile.sub">We use these details only to match schemes for you. Skip anything you’re not sure about.</p></div>
+        <div class="d-flex align-items-center gap-3"><div class="ring" id="ring" style="--p:0"><span id="ring-num">0%</span></div><span class="small text-muted" data-i18n="profile.complete">profile complete</span></div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row justify-content-center"><div class="col-lg-9">
+      <form id="profile-form" class="panel" novalidate>
+        <ol class="stepper" id="stepper"><li class="current" data-step="1" data-i18n="profile.st1">About you</li><li data-step="2" data-i18n="profile.st2">Household &amp; work</li><li data-step="3" data-i18n="profile.st3">Location &amp; details</li></ol>
+
+        <fieldset data-step="1">
+          <legend class="h4 mb-3" data-i18n="profile.st1">About you</legend>
+          <div class="mb-4" style="max-width:320px"><label class="form-label" for="f-dob" data-i18n="field.dob">Date of birth</label><input type="date" id="f-dob" class="form-control" max="2026-10-22"><div class="form-text" data-i18n="profile.dobHelp">Used to check age limits, such as pensions.</div></div>
+          <div class="mb-2" id="f-gender"><span class="form-label d-block" id="g-lbl" data-i18n="field.gender">Gender</span><div class="choice-group" role="radiogroup" aria-labelledby="g-lbl" id="gender-group"></div></div>
+        </fieldset>
+
+        <fieldset data-step="2" hidden>
+          <legend class="h4 mb-3" data-i18n="profile.st2">Household &amp; work</legend>
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label" for="f-income"><span data-i18n="field.income">Annual family income</span> <button type="button" class="btn btn-link p-0 align-baseline" style="min-height:0" data-bs-toggle="popover" data-bs-trigger="focus" data-why="income" aria-label="Why we ask" data-i18n-aria="profile.why"><i class="bi bi-info-circle" aria-hidden="true"></i></button></label><select id="f-income" class="form-select"></select><div class="form-text"><i class="bi bi-lock" aria-hidden="true"></i> <span data-i18n="profile.incomeWhy">Helps match income-based schemes. Admins cannot see this.</span></div></div>
+            <div class="col-md-6"><label class="form-label" for="f-occupation" data-i18n="field.occupation">Occupation</label><select id="f-occupation" class="form-select"></select></div>
+            <div class="col-md-6" id="wrap-student" hidden><label class="form-label" for="f-student_level" data-i18n="field.student_level">Course you are studying now</label><select id="f-student_level" class="form-select"></select><div class="form-text" data-i18n="profile.studentHelp">The course you are currently studying, not your highest qualification.</div></div>
+            <div class="col-md-6" id="wrap-farmer" hidden><label class="form-label" for="f-farmer_land_status" data-i18n="field.farmer_land_status">Land status</label><select id="f-farmer_land_status" class="form-select"></select></div>
+          </div>
+        </fieldset>
+
+        <fieldset data-step="3" hidden>
+          <legend class="h4 mb-3" data-i18n="profile.st3">Location &amp; details</legend>
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label" for="f-state" data-i18n="field.state">State</label><select id="f-state" class="form-select"></select></div>
+            <div class="col-md-6"><label class="form-label" for="f-district" data-i18n="field.district">District</label><select id="f-district" class="form-select"></select></div>
+            <div class="col-12" id="f-disability_type_wrap"><span class="form-label d-block" id="d-lbl" data-i18n="profile.hasDis">Do you have a disability?</span><div class="choice-group" role="radiogroup" aria-labelledby="d-lbl" id="dis-group"></div>
+              <div class="form-text"><i class="bi bi-lock" aria-hidden="true"></i> <span data-i18n="profile.disWhy">Used only to match disability support schemes. Admins cannot see this.</span></div></div>
+            <div class="col-md-6" id="wrap-dis" hidden><label class="form-label" for="f-disability_type" data-i18n="field.disability_type">Type of disability</label><select id="f-disability_type" class="form-select"></select></div>
+            <div class="col-12"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="f-email"><label class="form-check-label" for="f-email" data-i18n="profile.email">Email me when a saved scheme changes or a new scheme matches my profile</label></div></div>
+          </div>
+        </fieldset>
+
+        <div class="d-flex justify-content-between gap-2 mt-4 pt-3 border-top">
+          <button type="button" class="btn btn-outline-primary" id="back-btn" hidden><i class="bi bi-arrow-left" aria-hidden="true"></i><span data-i18n="common.back">Back</span></button>
+          <span></span>
+          <div class="d-flex gap-2"><button type="button" class="btn btn-primary" id="next-btn"><span data-i18n="common.next">Next</span><i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+          <button type="submit" class="btn btn-accent" id="save-btn" hidden><i class="bi bi-check2-circle" aria-hidden="true"></i><span data-i18n="profile.save">Save profile</span></button></div>
+        </div>
+      </form>
+      </div></div>
+    </div>
+  </main>
+  <div id="app-footer"></div>
+
+  <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/lang/ta.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/match.js"></script>
+  <script src="assets/js/chatbot.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/pages/profile.js"></script>
+</body>
+</html>
