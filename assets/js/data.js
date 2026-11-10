@@ -349,16 +349,16 @@ CC.seed = {
   ],
 
   users: [
-    { id: 1, name: 'Admin Team', email: 'admin@demo.in', password: 'admin123', role: 'ADMIN', preferred_language: 'EN', email_notifications: false, is_active: true, created_at: '2026-08-01' },
-    { id: 2, name: 'Priya Raman', email: 'citizen@demo.in', password: 'demo123', role: 'USER', preferred_language: 'EN', email_notifications: true, is_active: true, created_at: '2026-09-02' },
-    { id: 3, name: 'Murugan S', email: 'murugan@example.in', password: 'x', role: 'USER', is_active: true, created_at: '2026-09-04' },
-    { id: 4, name: 'Lakshmi Devi', email: 'lakshmi@example.in', password: 'x', role: 'USER', is_active: true, created_at: '2026-09-08' },
-    { id: 5, name: 'Arun Kumar', email: 'arun@example.in', password: 'x', role: 'USER', is_active: true, created_at: '2026-09-11' },
-    { id: 6, name: 'Fathima N', email: 'fathima@example.in', password: 'x', role: 'USER', is_active: true, created_at: '2026-09-15' },
-    { id: 7, name: 'Karthik R', email: 'karthik@example.in', password: 'x', role: 'USER', is_active: false, created_at: '2026-09-21' },
-    { id: 8, name: 'Selvi M', email: 'selvi@example.in', password: 'x', role: 'USER', is_active: true, created_at: '2026-09-29' },
-    { id: 9, name: 'Joseph D', email: 'joseph@example.in', password: 'x', role: 'USER', is_active: true, created_at: '2026-10-06' },
-    { id: 10, name: 'Meena P', email: 'meena@example.in', password: 'x', role: 'USER', is_active: true, created_at: '2026-10-14' }
+    { id: 1, name: 'Admin ', email: '26MX102@psgtech.ac.in', password: 'dav231107', role: 'ADMIN', preferred_language: 'EN', email_notifications: false, is_active: true, created_at: '2026-08-01' },
+    { id: 2, name: 'Deepa Dharshini G', email: '26MX203@psgtech.ac.in', password: '26MX203', role: 'USER', preferred_language: 'EN', email_notifications: true, is_active: true, created_at: '2026-09-02' },
+    { id: 3, name: 'Varshana R', email: '26MX225@psgtech.ac.in', password: '26MX225', role: 'USER', is_active: true, created_at: '2026-09-04' },
+    { id: 4, name: 'Haresh', email: '26MX205@psgtech.ac.in', password: '26MX205', role: 'USER', is_active: true, created_at: '2026-09-08' },
+    { id: 5, name: 'Vigneshwar', email: '26MX227@psgtech.ac.in', password: '26MX227', role: 'USER', is_active: true, created_at: '2026-09-11' },
+    { id: 6, name: 'Bharathi', email: '26MX104@psgtech.ac.in', password: '26MX104', role: 'USER', is_active: true, created_at: '2026-09-15' },
+    { id: 7, name: 'Siva prasath', email: '26MX220@psgtech.ac.in', password: '26MX220', role: 'USER', is_active: false, created_at: '2026-09-21' },
+    { id: 8, name: 'Agilesh', email: '26MX101@psgtech.ac.in', password: '26MX101', role: 'USER', is_active: true, created_at: '2026-09-29' },
+    { id: 9, name: '', email: '26MX228@psgtech.ac.in', password: '26MX228', role: 'USER', is_active: true, created_at: '2026-10-06' },
+    { id: 10, name: 'Kaviya Dharshini', email: '26MX112@psgtech.ac.in', password: '26MX112', role: 'USER', is_active: true, created_at: '2026-10-14' }
   ],
 
   profiles: {
