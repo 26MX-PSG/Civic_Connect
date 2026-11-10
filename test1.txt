@@ -1,1 +1,1 @@
-i am going to implement forgot password
+this is to change password
