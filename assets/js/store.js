@@ -17,11 +17,47 @@ CC.store = (function () {
   function del(k) { try { localStorage.removeItem(k); } catch (e) {} }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
 
+  /* ---------- real backend bridge (Express + MySQL) ----------
+   * Synchronous XHR keeps the existing page code unchanged. If the API is unreachable
+   * every call returns null and the store falls back to localStorage demo data. */
+  var API = (location.port === '3000') ? '/api' : 'http://localhost:3000/api';
+  var TOKEN = 'cc_token';
+  function http(method, path, body, async) {
+    try {
+      var x = new XMLHttpRequest(); x.open(method, API + path, !!async);
+      x.setRequestHeader('Content-Type', 'application/json');
+      var t = get(TOKEN); if (t) x.setRequestHeader('Authorization', 'Bearer ' + t);
+      x.send(body === undefined ? null : JSON.stringify(body));
+      if (async) return null;
+      var data = null; try { data = JSON.parse(x.responseText); } catch (e) {}
+      return { status: x.status, data: data };
+    } catch (e) { return null; }
+  }
+  var online = null;
+  function isOnline() { if (online === null) { var r = http('GET', '/health'); online = !!(r && r.status === 200); if (window.console) console.info('[CivicConnect] backend ' + (online ? 'connected (MySQL)' : 'offline — using local demo data')); } return online; }
+  function hydrate(d) {   // public catalogue always comes from MySQL
+    if (!isOnline()) return;
+    [['schemes', '/schemes?includeInactive=1'], ['categories', '/categories?all=1'], ['documents', '/documents'], ['faqs', '/faqs']].forEach(function (p) {
+      var r = http('GET', p[1]); if (r && r.status === 200 && Array.isArray(r.data) && r.data.length) d[p[0]] = r.data;
+    });
+  }
+  function syncUser(d, uid) {   // pull this user's profile + saved + notifications from MySQL
+    var r = http('GET', '/profiles/me'); if (r && r.status === 200 && r.data.profile) {
+      var p = r.data.profile; d.profiles = d.profiles || {};
+      if (p.occupation || p.dob) { if (p.dob) p.dob = String(p.dob).slice(0, 10); d.profiles[uid] = p; } else delete d.profiles[uid];
+    }
+    r = http('GET', '/saved'); if (r && r.status === 200) { d.saved = d.saved || {}; d.saved[uid] = r.data.scheme_ids; }
+    r = http('GET', '/notifications'); if (r && r.status === 200 && Array.isArray(r.data)) {
+      d.notifications = d.notifications.filter(function (n) { return n.user_id !== uid; }).concat(r.data.map(function (n) { return Object.assign({ user_id: uid }, n); }));
+    }
+  }
+
   function db() {
     if (mem) return mem;
     var raw = get(KEY);
-    if (raw) { try { mem = JSON.parse(raw); return mem; } catch (e) {} }
-    mem = clone(CC.seed);
+    if (raw) { try { mem = JSON.parse(raw); } catch (e) {} }
+    if (!mem) mem = clone(CC.seed);
+    hydrate(mem);
     save();
     return mem;
   }
@@ -110,7 +146,21 @@ CC.store = (function () {
     var s = session(); if (!s) return null;
     return db().users.find(function (u) { return u.id === s.userId && u.is_active; }) || null;
   }
+  function adopt(d, au, token) {   // put an API user into the local cache + start session
+    set(TOKEN, token);
+    var i = d.users.findIndex(function (x) { return x.id === au.id; });
+    var u = Object.assign({ is_active: true, created_at: new Date().toISOString().slice(0, 10) }, i > -1 ? d.users[i] : {}, au);
+    if (i > -1) d.users[i] = u; else d.users.push(u);
+    set(SESSION, JSON.stringify({ userId: u.id, role: u.role }));
+    syncUser(d, u.id); save(); return u;
+  }
   function login(email, password) {
+    if (isOnline()) {
+      var r = http('POST', '/auth/login', { email: String(email).trim(), password: password });
+      if (r && r.status === 200) return { ok: true, user: adopt(db(), r.data.user, r.data.token) };
+      if (r && r.status === 403) return { ok: false, error: 'disabled' };
+      return { ok: false, error: 'invalid' };
+    }
     var u = db().users.find(function (x) { return x.email.toLowerCase() === String(email).trim().toLowerCase(); });
     if (!u || u.password !== password) return { ok: false, error: 'invalid' };
     if (!u.is_active) return { ok: false, error: 'disabled' };
@@ -119,6 +169,11 @@ CC.store = (function () {
   }
   function register(name, email, password) {
     var d = db();
+    if (isOnline()) {
+      var r = http('POST', '/auth/register', { name: name.trim(), email: email.trim(), password: password, preferred_language: (CC.i18n && CC.i18n.lang === 'ta') ? 'TA' : 'EN' });
+      if (r && r.status === 201) return { ok: true, user: adopt(d, r.data.user, r.data.token) };
+      return { ok: false, error: r && r.status === 409 ? 'exists' : 'invalid' };
+    }
     if (d.users.some(function (x) { return x.email.toLowerCase() === email.trim().toLowerCase(); })) return { ok: false, error: 'exists' };
     var u = { id: Math.max.apply(null, d.users.map(function (x) { return x.id; })) + 1, name: name.trim(), email: email.trim(), password: password,
       role: 'USER', preferred_language: (CC.i18n && CC.i18n.lang === 'ta') ? 'TA' : 'EN', email_notifications: false, is_active: true, created_at: new Date().toISOString().slice(0, 10) };
@@ -126,11 +181,12 @@ CC.store = (function () {
     set(SESSION, JSON.stringify({ userId: u.id, role: u.role }));
     return { ok: true, user: u };
   }
-  function logout() { del(SESSION); }
+  function logout() { del(SESSION); del(TOKEN); }
 
   /* ---------- profile ---------- */
   function profile(uid) { return (db().profiles || {})[uid] || null; }
-  function saveProfile(uid, p) { var d = db(); d.profiles = d.profiles || {}; d.profiles[uid] = p; save(); }
+  function saveProfile(uid, p) { var d = db(); d.profiles = d.profiles || {}; d.profiles[uid] = p; save();
+    if (get(TOKEN)) http('PUT', '/profiles/me', p, true); }
 
   /* ---------- saved ---------- */
   function saved(uid) { return ((db().saved || {})[uid] || []).slice(); }
@@ -139,7 +195,9 @@ CC.store = (function () {
     var d = db(); d.saved = d.saved || {}; var arr = d.saved[uid] || (d.saved[uid] = []);
     sid = Number(sid); var i = arr.indexOf(sid);
     if (i > -1) arr.splice(i, 1); else arr.push(sid);
-    save(); return i === -1;
+    save();
+    if (get(TOKEN)) http(i > -1 ? 'DELETE' : 'POST', i > -1 ? '/saved/' + sid : '/saved', i > -1 ? undefined : { scheme_id: sid }, true);
+    return i === -1;
   }
 
   /* ---------- document checklist (browser only, per user + scheme) ---------- */
@@ -158,6 +216,7 @@ CC.store = (function () {
     set(voteKey, useful ? 'yes' : 'no');
     if (comment) f.comments.push(String(comment).slice(0, 200));
     save();
+    if (get(TOKEN)) http('PUT', '/feedback/' + sid, { useful: !!useful, comment: comment ? String(comment).slice(0, 200) : undefined }, true);
   }
 
   /* ---------- unanswered queries (search + chatbots) ---------- */
@@ -173,7 +232,7 @@ CC.store = (function () {
 
   /* ---------- notifications ---------- */
   function notifications(uid) { return db().notifications.filter(function (n) { return n.user_id === uid; }).sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; }); }
-  function markRead(id) { var n = db().notifications.find(function (x) { return x.id === id; }); if (n) { n.is_read = true; save(); } }
+  function markRead(id) { var n = db().notifications.find(function (x) { return x.id === id; }); if (n) { n.is_read = true; save(); if (get(TOKEN)) http('PATCH', '/notifications/' + id + '/read', {}, true); } }
 
   /* ---------- admin ---------- */
   function upsert(listName, obj) {

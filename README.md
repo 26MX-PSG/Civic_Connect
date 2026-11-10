@@ -51,3 +51,53 @@ All scheme details are **demo data** and are marked “Demo data – not yet ver
 scheme against its official portal before presenting it as accurate.
 
 See **DESIGN.md** for the full design, data model, chatbot logic and backend plan.
+
+## Backend (Express + MySQL) — Weeks 5–6
+
+The API lives in `backend/`. The frontend still uses `assets/js/store.js` (localStorage) until the Week 8 integration.
+
+### First-time setup
+```bash
+cp .env.example .env                 # local dev settings (git-ignored)
+docker compose up -d                 # MySQL 8 on localhost:3307 (utf8mb4, so Tamil works)
+cd backend
+npm install
+npm run db:reset                     # creates tables (db/schema.sql) and loads the demo data from assets/js/data.js
+npm start                            # http://localhost:3000   (npm run dev = auto-restart)
+```
+Dev DB login: database `civicconnect`, user `civic_user`, password `civic_pass123`, port **3307**.
+Demo accounts (same as the frontend): `citizen@demo.in / demo123`, `admin@demo.in / admin123`.
+
+### Commands
+| Command | What it does |
+|---|---|
+| `npm run db:reset` | Drops and recreates all tables, then seeds. **Wipes data — development only.** |
+| `npm run db:seed` | Reloads the seed data only |
+| `npm test` | 16 integration tests against the seeded dev DB |
+| `node scripts/make-postman.js` | Regenerates the Postman files in `backend/postman/` |
+
+### Endpoints (Weeks 5–6)
+Errors always look like `{ "error": { "code", "message" } }`. Send `Authorization: Bearer <token>` for 🔒 routes.
+
+| Endpoint | Notes |
+|---|---|
+| `GET /api/health` | API + DB status |
+| `POST /api/auth/register`, `POST /api/auth/login` | return `{ token, user }`; register always creates a `USER` |
+| `GET / PATCH /api/auth/me` 🔒 | current user, language and notification preferences |
+| `GET /api/schemes?keyword=&category=&level=&state=` | search (English and Tamil); no-result keywords are logged for admins |
+| `GET /api/schemes/:idOrSlug` | full detail, document guide, feedback totals |
+| `GET /api/categories`, `/api/categories/:idOrSlug` | active categories with scheme counts |
+| `GET /api/documents`, `/api/faqs?keyword=` | document guide and FAQs |
+| `GET / PUT /api/profiles/me` 🔒 | profile and completion % |
+| `GET /api/recommendations` 🔒 | `matches` (Basic Criteria Match) and `partial` (complete your profile) |
+| `GET / POST / DELETE /api/saved` 🔒 | `POST {scheme_id}`, `DELETE /api/saved/:schemeId` |
+| `GET / PUT /api/feedback/:schemeId` | totals; `PUT {useful, comment?}` 🔒 (one vote per user, replaceable) |
+| `GET /api/notifications`, `PATCH /api/notifications/:id/read` 🔒 | |
+| `GET /api/admin/users` 🔒 ADMIN | name, email, status only |
+
+### Postman
+Import `backend/postman/CivicConnect.postman_collection.json` and `CivicConnect.local.postman_environment.json`, select the "CivicConnect Local" environment, then run the **Auth** folder first (it stores the tokens), then any other folder.
+
+### Notes
+- Seed data is the same **demo, unverified** content as the frontend. Edit `assets/js/data.js` and run `npm run db:seed` to reload it.
+- Feedback totals for the seeded demo votes are stored as anonymous rows; real votes need a login.
