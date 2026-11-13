@@ -24,6 +24,8 @@ function createApp() {
     ['GET', '/api/health', '-', 'API + database status'],
     ['POST', '/api/auth/register', '-', 'Create account (users table INSERT)'],
     ['POST', '/api/auth/login', '-', 'Login, returns JWT'],
+    ['POST', '/api/auth/forgot-password', '-', 'Send a generic reset email if account exists'],
+    ['POST', '/api/auth/reset-password', '-', 'Reset password using a token'],
     ['GET', '/api/auth/me', 'user', 'Current user'],
     ['PATCH', '/api/auth/me', 'user', 'Update language / notification prefs (users UPDATE)'],
     ['GET', '/api/categories', '-', 'Categories with scheme counts'],
@@ -68,7 +70,7 @@ function createApp() {
   const root = require('path').join(__dirname, '..', '..');
   app.use('/assets', express.static(require('path').join(root, 'assets')));
   app.use('/admin', express.static(require('path').join(root, 'admin')));
-  app.get(/^\/([a-z]+\.html)?$/, (req, res, next) => {
+  app.get(/^\/([A-Za-z0-9_-]+\.html)?$/, (req, res, next) => {
     const f = req.params[0] || 'index.html';
     res.sendFile(require('path').join(root, f), (e) => e && next());
   });

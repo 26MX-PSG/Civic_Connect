@@ -16,6 +16,19 @@ CREATE TABLE users (
   created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE password_resets (
+  reset_id     INT PRIMARY KEY AUTO_INCREMENT,
+  user_id      INT NOT NULL,
+  token_hash   CHAR(64) NOT NULL,
+  expires_at   DATETIME NOT NULL,
+  used_at      DATETIME NULL,
+  created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_password_reset_token (token_hash),
+  KEY idx_password_resets_user (user_id),
+  KEY idx_password_resets_expiry (expires_at),
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
 CREATE TABLE categories (
   category_id INT PRIMARY KEY AUTO_INCREMENT,
   slug        VARCHAR(60) NOT NULL UNIQUE,
