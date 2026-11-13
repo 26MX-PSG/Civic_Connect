@@ -4,7 +4,7 @@
   var u = U.requireLogin(); if (!u) return;
   var p = Object.assign({}, S.profile(u.id) || {});
   var step = 1, dirty = false;
-  var STEP_OF = { dob: 1, gender: 1, income: 2, occupation: 2, student_level: 2, farmer_land_status: 2, state: 3, district: 3, disability_type: 3 };
+  var STEP_OF = { dob: 1, gender: 1, income: 2, occupation: 2, student_level: 2, farmer_land_status: 2, state: 3, district: 3, disability_type: 3, family_special_needs: 3 };
   var sel = T('common.select', 'Select…');
 
   function opts(id, values, labelFn) { U.$('#' + id).innerHTML = '<option value="">' + U.esc(sel) + '</option>' + values.map(function (v) { var x = typeof v === 'object' ? v : { value: v }; return '<option value="' + x.value + '">' + U.esc(labelFn(x)) + '</option>'; }).join(''); }
@@ -17,6 +17,7 @@
   function districts() { opts('f-district', E.districts[U.$('#f-state').value] || [], function (x) { return x.value; }); }
   U.$('#gender-group').innerHTML = E.gender.map(function (g) { return '<input type="radio" name="gender" id="g-' + g + '" value="' + g + '"><label for="g-' + g + '">' + U.esc(U.label(g)) + '</label>'; }).join('');
   U.$('#dis-group').innerHTML = [['YES', T('common.yes', 'Yes')], ['NONE', T('common.no', 'No')], ['SKIP', T('profile.skip', 'Prefer not to say')]].map(function (o) { return '<input type="radio" name="hasdis" id="d-' + o[0] + '" value="' + o[0] + '"><label for="d-' + o[0] + '">' + U.esc(o[1]) + '</label>'; }).join('');
+  U.$('#family-needs-group').innerHTML = [['YES', T('common.yes', 'Yes')], ['NO', T('common.no', 'No')]].map(function (o) { return '<input type="radio" name="hasfamilyneeds" id="family-' + o[0] + '" value="' + o[0] + '"><label for="family-' + o[0] + '">' + U.esc(o[1]) + '</label>'; }).join('');
 
   // fill
   U.$('#f-dob').value = p.dob || '';
@@ -25,16 +26,18 @@
   U.$('#f-student_level').value = p.student_level || ''; U.$('#f-farmer_land_status').value = p.farmer_land_status || '';
   U.$('#f-state').value = p.state || ''; districts(); U.$('#f-district').value = p.district || '';
   if (p.disability_type === 'NONE') U.$('#d-NONE').checked = true; else if (p.disability_type) { U.$('#d-YES').checked = true; U.$('#f-disability_type').value = p.disability_type; }
+  if (p.family_special_needs === 'YES') U.$('#family-YES').checked = true; else if (p.family_special_needs === 'NO') U.$('#family-NO').checked = true;
   U.$('#f-email').checked = !!u.email_notifications;
 
   function read() {
-    var g = U.$('input[name=gender]:checked'), d = U.$('input[name=hasdis]:checked');
+    var g = U.$('input[name=gender]:checked'), d = U.$('input[name=hasdis]:checked'), f = U.$('input[name=hasfamilyneeds]:checked');
     var occ = U.$('#f-occupation').value;
     return { dob: U.$('#f-dob').value, gender: g ? g.value : '', income: U.$('#f-income').value ? Number(U.$('#f-income').value) : '', occupation: occ,
       state: U.$('#f-state').value, district: U.$('#f-district').value,
       student_level: occ === 'STUDENT' || U.$('#f-student_level').value ? U.$('#f-student_level').value : '',
       farmer_land_status: occ === 'FARMER' || U.$('#f-farmer_land_status').value ? U.$('#f-farmer_land_status').value : '',
-      disability_type: !d || d.value === 'SKIP' ? null : d.value === 'NONE' ? 'NONE' : (U.$('#f-disability_type').value || null) };
+      disability_type: !d || d.value === 'SKIP' ? null : d.value === 'NONE' ? 'NONE' : (U.$('#f-disability_type').value || null),
+      family_special_needs: f ? f.value : null };
   }
   function cond() {
     var occ = U.$('#f-occupation').value, d = U.$('input[name=hasdis]:checked');
@@ -58,8 +61,10 @@
   window.addEventListener('beforeunload', function (e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
   U.$('#profile-form').addEventListener('submit', function (e) {
     e.preventDefault();
-    var np = read(); var d = U.$('input[name=hasdis]:checked');
+    var np = read(); var d = U.$('input[name=hasdis]:checked'); var f = U.$('input[name=hasfamilyneeds]:checked');
     if (d && d.value === 'YES' && !np.disability_type) { U.$('#f-disability_type').classList.add('is-invalid'); U.$('#f-disability_type').focus(); return; }
+    if (!f) { U.$('#family-needs-group').classList.add('is-invalid'); U.$('#family-YES').focus(); return; }
+    U.$('#family-needs-group').classList.remove('is-invalid');
     S.saveProfile(u.id, np); u.email_notifications = U.$('#f-email').checked; S.save(); dirty = false;
     var n = CC.match.recommend(np).filter(function (x) { return x.result.status === 'MATCH'; }).length;
     U.toast(T('profile.saved', 'Profile saved') + ' — ' + n + ' ' + T('profile.matchCount', 'schemes match your details'), 'success', { label: T('profile.seeMatches', 'See matches'), fn: function () { location.href = 'recommendations.html'; } });
