@@ -65,11 +65,27 @@
     if (d && d.value === 'YES' && !np.disability_type) { U.$('#f-disability_type').classList.add('is-invalid'); U.$('#f-disability_type').focus(); return; }
     if (!f) { U.$('#family-needs-group').classList.add('is-invalid'); U.$('#family-YES').focus(); return; }
     U.$('#family-needs-group').classList.remove('is-invalid');
-    S.saveProfile(u.id, np); u.email_notifications = U.$('#f-email').checked; S.save(); dirty = false;
+    S.saveProfile(u.id, np); u.email_notifications = U.$('#f-email').checked; S.save(); dirty = false; renderResults();
     var n = CC.match.recommend(np).filter(function (x) { return x.result.status === 'MATCH'; }).length;
-    U.toast(T('profile.saved', 'Profile saved') + ' — ' + n + ' ' + T('profile.matchCount', 'schemes match your details'), 'success', { label: T('profile.seeMatches', 'See matches'), fn: function () { location.href = 'recommendations.html'; } });
+    U.toast(T('profile.saved', 'Profile saved') + ' — ' + n + ' ' + T('profile.matchCount', 'schemes match your details'), 'success', { label: T('profile.seeMatches', 'See matches'), fn: function () { U.$('#results').scrollIntoView({ behavior: 'smooth' }); } });
   });
   cond();
-  if (U.param('welcome')) U.toast(T('profile.welcome', 'Account created. Tell us a little about you to see matching schemes.'), 'success');
+  function renderResults() {
+    var root = U.$('#rec-root'), pr = S.profile(u.id);
+    if (!pr) { root.innerHTML = '<div class="panel">' + U.empty('person-vcard', T('rec.noProfile', 'Tell us about yourself first'), T('rec.noProfileT', 'Fill in the details above and save to see schemes whose basic criteria match.')) + '</div>'; return; }
+    var recs = CC.match.recommend(pr);
+    var full = recs.filter(function (r) { return r.result.status === 'MATCH'; }), part = recs.filter(function (r) { return r.result.status === 'PARTIAL'; });
+    if (!recs.length) { root.innerHTML = '<div class="panel">' + U.empty('search', T('rec.none', 'No matches yet'), T('rec.noneT', 'Try completing more of your profile, or browse all 15 schemes.'), '<a class="btn btn-primary" href="schemes.html">' + U.esc(T('home.browse', 'Browse All 15')) + '</a>') + '</div>'; return; }
+    function group(list, title, icon, sub) {
+      if (!list.length) return '';
+      return '<section class="mb-5"><h3 class="h4 d-flex align-items-center gap-2"><i class="bi bi-' + icon + '" aria-hidden="true"></i>' + U.esc(title) + ' <span class="badge-cc b-cat">' + list.length + '</span></h3><p class="text-muted small">' + U.esc(sub) + '</p><div class="row row-cols-1 row-cols-md-2 g-3">' +
+        list.map(function (r) { return '<div class="col">' + U.schemeCard(r.scheme, { result: r.result }) + '</div>'; }).join('') + '</div></section>';
+    }
+    root.innerHTML = group(full, T('match.basic', 'Basic Criteria Match'), 'check-circle', T('rec.fullSub', 'Your profile meets the basic criteria we have recorded for these schemes.')) +
+      group(part, T('match.partial', 'Partial match – complete your profile'), 'question-circle', T('rec.partSub', 'Some details these schemes need are missing. Add them above to get a clearer result.'));
+    U.bindSave(root);
+  }
+  renderResults();
+  if (location.hash === '#results') { /* scroll handled by browser */ }
   var h = location.hash.replace('#f-', ''); if (STEP_OF[h]) { show(STEP_OF[h]); setTimeout(function () { var el = U.$('#f-' + h) || U.$('#f-' + h + '_wrap'); if (el) { el.scrollIntoView({ block: 'center' }); (el.querySelector('input,select') || el).focus(); } }, 50); }
 })();

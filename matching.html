@@ -4,19 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="CivicConnect — bilingual guide to 15 selected government schemes.">
-  <title data-i18n-title="title.profile">My profile · CivicConnect</title>
+  <title data-i18n-title="title.profile">Profile Matching · CivicConnect</title>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/vendor/bootstrap/bootstrap.min.css">
   <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-<body data-page="profile" data-base="">
+<body data-page="matching" data-base="">
   <div id="app-header"></div>
   <main id="main" tabindex="-1">
 
     <div class="container page-head">
       <div class="d-flex flex-wrap gap-4 align-items-center justify-content-between">
-        <div><h1 data-i18n="profile.h1">Your profile</h1><p data-i18n="profile.sub">We use these details only to match schemes for you. Skip anything you’re not sure about.</p></div>
+        <div><h1 data-i18n="profile.h1">Profile Matching</h1><p data-i18n="profile.sub">Fill in these details to see schemes that match you. They are used only for matching and are separate from your account. Skip anything you’re not sure about.</p></div>
         <div class="d-flex align-items-center gap-3"><div class="ring" id="ring" style="--p:0"><span id="ring-num">0%</span></div><span class="small text-muted" data-i18n="profile.complete">profile complete</span></div>
       </div>
     </div>
@@ -64,6 +64,11 @@
       </form>
       </div></div>
     </div>
+    <div class="container mt-5" id="results">
+      <div class="d-flex flex-wrap justify-content-between gap-3 align-items-end mb-3"><div><h2 class="h3 mb-1" data-i18n="rec.h1">Schemes based on your profile</h2><p class="text-muted mb-0" data-i18n="rec.sub">We compared your details with each scheme’s basic criteria.</p></div></div>
+      <div class="disclaimer-box mb-4"><i class="bi bi-info-circle" aria-hidden="true"></i><div data-i18n="disclaimer.text">This information is for guidance only and is not an official eligibility decision. Please confirm on the official portal.</div></div>
+      <div id="rec-root"></div>
+    </div>
   </main>
   <div id="app-footer"></div>
 
@@ -75,6 +80,6 @@
   <script src="assets/js/match.js"></script>
   <script src="assets/js/chatbot.js"></script>
   <script src="assets/js/ui.js"></script>
-  <script src="assets/js/pages/profile.js"></script>
+  <script src="assets/js/pages/matching.js"></script>
 </body>
 </html>

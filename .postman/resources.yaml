@@ -1,0 +1,9 @@
+# Use this workspace to collaborate
+workspace:
+  id: bab2d787-0cf2-40cc-8484-d55b6e410eda
+
+localResources:
+  collections:
+    - ../backend/postman/CivicConnect.postman_collection.json
+  environments:
+    - ../backend/postman/CivicConnect.local.postman_environment.json
