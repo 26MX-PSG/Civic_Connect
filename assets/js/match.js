@@ -8,7 +8,7 @@ window.CC = window.CC || {};
 
 CC.match = (function () {
   var FIELD = { AGE: 'dob', GENDER: 'gender', ANNUAL_FAMILY_INCOME: 'income', OCCUPATION: 'occupation',
-    STUDENT_LEVEL: 'student_level', FARMER_LAND_STATUS: 'farmer_land_status', DISABILITY_TYPE: 'disability_type', DISTRICT: 'district' };
+    STUDENT_LEVEL: 'student_level', FARMER_LAND_STATUS: 'farmer_land_status', DISABILITY_TYPE: 'disability_type', FAMILY_SPECIAL_NEEDS: 'family_special_needs', DISTRICT: 'district' };
 
   function age(dob) {
     if (!dob) return null;
@@ -32,6 +32,9 @@ CC.match = (function () {
       case 'DISABILITY_TYPE':
         if (p.disability_type === 'NONE') return null;      // user said "no disability"
         return p.disability_type ? p.disability_type : undefined;
+      case 'FAMILY_SPECIAL_NEEDS':
+        if (p.family_special_needs === 'NO') return null;
+        return p.family_special_needs ? p.family_special_needs : undefined;
       default:
         var v = p[FIELD[type]]; return v ? v : undefined;
     }
@@ -79,15 +82,31 @@ CC.match = (function () {
   }
 
   function recommend(p) {
-    return CC.store.schemes().map(function (s) { return { scheme: s, result: evaluate(s, p) }; })
+    var recs = CC.store.schemes().map(function (s) { return { scheme: s, result: evaluate(s, p) }; })
       .filter(function (x) { return x.result.status !== 'NONE'; });
+    if (p && p.family_special_needs === 'YES') {
+      CC.store.schemes().filter(function (s) { return s.category_id === 9; }).forEach(function (s) {
+        if (!recs.some(function (x) { return x.scheme.id === s.id; })) { recs.push({
+          scheme: s,
+          result: {
+            status: 'MATCH',
+            perCriterion: [],
+            stateResult: 'pass',
+            reasons: [{ label_en: 'Family has autism or special needs', label_ta: 'குடும்பத்தில் ஆட்டிசம் / சிறப்புத் தேவைகள் உள்ளன' }],
+            missing: []
+          }
+        }); }
+      });
+    }
+    return recs;
   }
 
   function completion(p) {
     if (!p) return 0;
     var f = ['dob', 'gender', 'income', 'occupation', 'state', 'district'];
     var done = f.filter(function (k) { return p[k]; }).length;
-    var total = f.length + 1; if (p.disability_type !== undefined && p.disability_type !== null) done++;
+    var total = f.length + 2; if (p.disability_type !== undefined && p.disability_type !== null) done++;
+    if (p.family_special_needs !== undefined && p.family_special_needs !== null) done++;
     if (p.occupation === 'STUDENT') { total++; if (p.student_level) done++; }
     if (p.occupation === 'FARMER') { total++; if (p.farmer_land_status) done++; }
     return Math.round(done * 100 / total);
