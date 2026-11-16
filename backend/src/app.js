@@ -9,6 +9,7 @@ const { notFoundHandler, errorHandler } = require('./middleware/error');
 function createApp() {
   const app = express();
   app.disable('x-powered-by');
+  if (config.isProd) app.set('trust proxy', 1);   // behind the host's HTTPS proxy: real client IPs for rate limiting
   app.use(helmet({ contentSecurityPolicy: false })); // CSP off so the static demo frontend (inline handlers, CDN fonts) works
   app.use(cors({ origin: config.corsOrigin === '*' ? true : config.corsOrigin.split(',') }));
   app.use(express.json({ limit: '50kb' }));
@@ -43,7 +44,26 @@ function createApp() {
     ['PUT', '/api/feedback/:schemeId', 'user', 'Vote + comment (feedback UPSERT)'],
     ['GET', '/api/notifications', 'user', 'My notifications'],
     ['PATCH', '/api/notifications/:id/read', 'user', 'Mark as read (notifications UPDATE)'],
-    ['GET', '/api/admin/users', 'admin', 'User list for admins']
+    ['POST', '/api/chat/log', '-', 'Chatbot/search reports an unanswered question'],
+    ['GET', '/api/admin/users', 'admin', 'User list for admins'],
+    ['PATCH', '/api/admin/users/:id', 'admin', 'Enable / disable a citizen account'],
+    ['GET', '/api/admin/stats', 'admin', 'Dashboard numbers'],
+    ['POST', '/api/admin/schemes', 'admin', 'Add scheme (+ NEW_MATCH notifications)'],
+    ['PUT', '/api/admin/schemes/:id', 'admin', 'Edit scheme (+ SCHEME_UPDATED / NEW_MATCH)'],
+    ['PATCH', '/api/admin/schemes/:id/active', 'admin', 'Activate / deactivate (+ SCHEME_DEACTIVATED)'],
+    ['POST', '/api/admin/categories', 'admin', 'Add category'],
+    ['PUT', '/api/admin/categories/:id', 'admin', 'Edit category'],
+    ['GET', '/api/admin/faqs', 'admin', 'All FAQs incl. inactive'],
+    ['POST', '/api/admin/faqs', 'admin', 'Add FAQ'],
+    ['PUT', '/api/admin/faqs/:id', 'admin', 'Edit FAQ'],
+    ['DELETE', '/api/admin/faqs/:id', 'admin', 'Delete FAQ'],
+    ['PUT', '/api/admin/documents/:id', 'admin', 'Edit document guide entry'],
+    ['GET', '/api/admin/queries', 'admin', 'Unanswered queries'],
+    ['PATCH', '/api/admin/queries/:id', 'admin', 'Set review status'],
+    ['GET', '/api/admin/feedback', 'admin', 'Feedback totals + comments per scheme'],
+    ['POST', '/api/admin/announcements', 'admin', 'Announcement: notification to all + email to opted-in users'],
+    ['GET', '/api/admin/mail/status', 'admin', 'Check SMTP settings'],
+    ['POST', '/api/admin/mail/test', 'admin', 'Send a test email']
   ];
   app.get('/api', (req, res) => res.json({ name: 'CivicConnect API', endpoints: ENDPOINTS.map(([method, path, auth, description]) => ({ method, path, auth, description })) }));
   app.get('/api-docs', (req, res) => res.type('html').send(`<!doctype html><meta charset="utf-8"><title>CivicConnect API</title>
@@ -64,6 +84,7 @@ function createApp() {
   app.use('/api/recommendations', require('./routes/recommendations'));
   app.use('/api/feedback', require('./routes/feedback'));
   app.use('/api/notifications', require('./routes/notifications'));
+  app.use('/api/chat', require('./routes/chat'));
   app.use('/api/admin', require('./routes/admin'));
 
   // Serve the static frontend from the same origin (only these paths; backend/ and .env are never exposed)

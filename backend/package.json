@@ -6,9 +6,12 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
+    "start:prod": "node scripts/init-db.js && node src/server.js",
     "dev": "node --watch src/server.js",
+    "postman": "node scripts/make-postman.js",
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js",
+    "mail:test": "node scripts/mail-test.js",
     "db:reset": "node scripts/migrate.js && node scripts/seed.js",
     "test": "node --test --test-concurrency=1 ./test/*.js"
   },

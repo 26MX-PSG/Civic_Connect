@@ -6,16 +6,24 @@
   var tabMap = { categories: '#t-cats', faqs: '#t-faqs', chatbot: '#t-bot' };
   if (U.param('tab') && tabMap[U.param('tab')]) bootstrap.Tab.getOrCreateInstance(U.$('[data-bs-target="' + tabMap[U.param('tab')] + '"]')).show();
 
+  /* Save to MySQL via the admin API when online; returns false (and shows the error) if the server rejects it. */
+  function pushCat(c) { var r = S.remote('PUT', '/admin/categories/' + c.id, { slug: c.slug, name_en: c.name_en, name_ta: c.name_ta, icon: c.icon, description: c.description, is_active: c.is_active }); if (r && r.status >= 400) { U.toast(S.apiError(r), 'error'); return false; } return true; }
+  function pushFaq(o) {
+    var r = S.remote(o.id ? 'PUT' : 'POST', '/admin/faqs' + (o.id ? '/' + o.id : ''), o);
+    if (r && r.status >= 400) { U.toast(S.apiError(r), 'error'); return false; }
+    if (r && !o.id) o.id = r.data.id;
+    return true;
+  }
   function sw(id, on, attr) { return '<div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" ' + attr + '="' + id + '"' + (on ? ' checked' : '') + ' aria-label="' + U.esc(T('ac.enabled', 'Enabled')) + '"></div>'; }
   function drawCats() {
     U.$('#cat-rows').innerHTML = S.categories({ all: true }).map(function (c) {
       return '<tr><td><span class="cat-icon" style="width:40px;height:40px;font-size:1.1rem"><i class="bi bi-' + c.icon + '" aria-hidden="true"></i></span></td><td class="fw-semibold">' + U.esc(c.name_en) + '</td><td lang="ta">' + U.esc(c.name_ta) + '</td><td>' + c.scheme_count + '</td><td>' + sw(c.id, c.is_active, 'data-cat-on') + '</td><td class="text-end"><button class="btn btn-sm btn-outline-primary" data-cat-edit="' + c.id + '"><i class="bi bi-pencil" aria-hidden="true"></i>' + U.esc(T('common.edit', 'Edit')) + '</button></td></tr>';
     }).join('');
-    U.$$('[data-cat-on]').forEach(function (i) { i.onchange = function () { S.category(i.getAttribute('data-cat-on')).is_active = i.checked; S.save(); U.toast(T('common.savedMsg', 'Changes saved'), 'success'); }; });
+    U.$$('[data-cat-on]').forEach(function (i) { i.onchange = function () { var c = S.category(i.getAttribute('data-cat-on')), was = c.is_active; c.is_active = i.checked; if (!pushCat(c)) { c.is_active = was; i.checked = was; return; } S.save(); U.toast(T('common.savedMsg', 'Changes saved'), 'success'); }; });
     U.$$('[data-cat-edit]').forEach(function (b) { b.onclick = function () {
       var c = S.category(b.getAttribute('data-cat-edit'));
       form(T('ac.editCat', 'Edit category'), '<div class="row g-3"><div class="col-md-6"><label class="form-label required" for="e-en">' + U.esc(T('ac.nameEn', 'Name (English)')) + '</label><input id="e-en" class="form-control" required value="' + U.esc(c.name_en) + '"></div><div class="col-md-6"><label class="form-label required" for="e-ta">' + U.esc(T('ac.nameTa', 'Name (Tamil)')) + '</label><input id="e-ta" lang="ta" class="form-control" required value="' + U.esc(c.name_ta) + '"></div><div class="col-md-6"><label class="form-label" for="e-icon">Bootstrap icon</label><input id="e-icon" class="form-control" value="' + U.esc(c.icon) + '"></div><div class="col-12"><label class="form-label" for="e-desc">' + U.esc(T('ac.desc', 'Description')) + '</label><textarea id="e-desc" class="form-control">' + U.esc(c.description) + '</textarea></div></div>',
-        function () { c.name_en = U.$('#e-en').value.trim(); c.name_ta = U.$('#e-ta').value.trim(); c.icon = U.$('#e-icon').value.trim() || c.icon; c.description = U.$('#e-desc').value.trim(); S.save(); drawCats(); });
+        function () { var keep = Object.assign({}, c); c.name_en = U.$('#e-en').value.trim(); c.name_ta = U.$('#e-ta').value.trim(); c.icon = U.$('#e-icon').value.trim() || c.icon; c.description = U.$('#e-desc').value.trim(); if (!pushCat(c)) { Object.assign(c, keep); drawCats(); return false; } S.save(); drawCats(); });
     }; });
   }
   var TOPICS = ['About', 'Applying', 'Matching', 'Documents', 'Account', 'Criteria', 'Assistant'];
@@ -24,7 +32,7 @@
       var c = f.category_id ? S.category(f.category_id) : null;
       return '<tr><td class="fw-semibold" style="min-width:260px">' + U.esc(f.q_en) + '</td><td>' + U.esc(f.topic) + '</td><td>' + U.esc(c ? c.name_en : T('ac.general', 'General')) + '</td><td>' + (f.q_ta && f.a_ta ? '<span class="badge-cc b-active">✓</span>' : '<span class="badge-cc b-overdue">' + U.esc(T('ac.missing', 'Missing')) + '</span>') + '</td><td>' + sw(f.id, f.is_active !== false, 'data-faq-on') + '</td><td class="text-end"><button class="btn btn-sm btn-outline-primary" data-faq-edit="' + f.id + '"><i class="bi bi-pencil" aria-hidden="true"></i>' + U.esc(T('common.edit', 'Edit')) + '</button></td></tr>';
     }).join('');
-    U.$$('[data-faq-on]').forEach(function (i) { i.onchange = function () { d.faqs.find(function (f) { return f.id == i.getAttribute('data-faq-on'); }).is_active = i.checked; S.save(); CC.bot.rebuild(); U.toast(T('common.savedMsg', 'Changes saved'), 'success'); }; });
+    U.$$('[data-faq-on]').forEach(function (i) { i.onchange = function () { var f = d.faqs.find(function (x) { return x.id == i.getAttribute('data-faq-on'); }), was = f.is_active; f.is_active = i.checked; if (!pushFaq(f)) { f.is_active = was; i.checked = was !== false; return; } S.save(); CC.bot.rebuild(); U.toast(T('common.savedMsg', 'Changes saved'), 'success'); }; });
     U.$$('[data-faq-edit]').forEach(function (b) { b.onclick = function () { faqForm(d.faqs.find(function (f) { return f.id == b.getAttribute('data-faq-edit'); })); }; });
   }
   function faqForm(f) {
@@ -39,11 +47,11 @@
       '<div class="col-12"><div class="ok-box small"><i class="bi bi-robot" aria-hidden="true"></i><span>' + U.esc(T('ac.faqBotNote', 'Saved FAQs are used by both chatbots straight away. Write the question the way citizens would ask it.')) + '</span></div></div></div>',
       function () {
         var o = { q_en: U.$('#e-qen').value.trim(), a_en: U.$('#e-aen').value.trim(), q_ta: U.$('#e-qta').value.trim(), a_ta: U.$('#e-ata').value.trim(), topic: U.$('#e-topic').value, category_id: U.$('#e-cat').value ? Number(U.$('#e-cat').value) : null, is_active: f ? f.is_active : true };
-        if (f) o.id = f.id; S.upsert('faqs', o); CC.bot.rebuild(); drawFaqs(); drawKB();
+        if (f) o.id = f.id; if (!pushFaq(o)) return false; S.upsert('faqs', o); CC.bot.rebuild(); drawFaqs(); drawKB();
       });
   }
   function form(title, html, save) { U.$('#em-h').textContent = title; U.$('#em-body').innerHTML = html; U.$('#edit-form').classList.remove('was-validated'); onSave = save; modal.show(); }
-  U.$('#edit-form').addEventListener('submit', function (e) { e.preventDefault(); var f = e.target; f.classList.add('was-validated'); if (!f.checkValidity()) return; onSave(); modal.hide(); U.toast(T('common.savedMsg', 'Changes saved'), 'success'); });
+  U.$('#edit-form').addEventListener('submit', function (e) { e.preventDefault(); var f = e.target; f.classList.add('was-validated'); if (!f.checkValidity()) return; if (onSave() === false) return; modal.hide(); U.toast(T('common.savedMsg', 'Changes saved'), 'success'); });
   U.$('#faq-add').addEventListener('click', function () { faqForm(null); });
 
   /* ---------- chatbot knowledge ---------- */

@@ -6,6 +6,15 @@
   var modal = new bootstrap.Modal(U.$('#scheme-modal')), confirmM = new bootstrap.Modal(U.$('#confirm-modal'));
   var TYPES = ['AGE', 'GENDER', 'ANNUAL_FAMILY_INCOME', 'OCCUPATION', 'STUDENT_LEVEL', 'FARMER_LAND_STATUS', 'DISABILITY_TYPE', 'DISTRICT'], OPS = ['=', '<', '<=', '>', '>=', 'IN', 'BETWEEN', 'IS_SET'];
 
+  /* "3 notified, 1 emailed" summary from the API's notification result */
+  function sum(n) {
+    if (!n) return '';
+    var list = n.updated || n.newMatch ? [n.updated, n.newMatch] : [n], notified = 0, emailed = 0, failed = 0;
+    list.forEach(function (x) { if (x) { notified += x.notified; emailed += x.emailed; failed += x.email_failed; } });
+    return notified ? ' · ' + notified + ' ' + T('as.notified', 'notified') + ', ' + emailed + ' ' + T('as.emailed', 'emailed') + (failed ? ', ' + failed + ' ' + T('as.emailFail', 'email failed') : '') : '';
+  }
+  function replaceLocal(sc) { var i = d.schemes.findIndex(function (x) { return x.id === sc.id; }); if (i > -1) d.schemes[i] = sc; else d.schemes.push(sc); S.save(); CC.bot.rebuild(); }
+
   function draw() {
     var q = U.$('#as-q').value.toLowerCase(), f = U.$('#as-status').value;
     var list = d.schemes.filter(function (s) {
@@ -28,18 +37,24 @@
     U.$$('[data-edit]').forEach(function (b) { b.onclick = function () { openForm(S.scheme(b.getAttribute('data-edit'))); }; });
     U.$$('[data-toggle]').forEach(function (b) { b.onclick = function () {
       var s = S.scheme(b.getAttribute('data-toggle'));
-      if (s.is_active) { toDeact = s; U.$('#cm-text').textContent = s.name_en; confirmM.show(); } else { s.is_active = true; S.save(); draw(); U.toast(T('as.activated', 'Scheme activated'), 'success'); }
+      if (s.is_active) { toDeact = s; U.$('#cm-text').textContent = s.name_en; confirmM.show(); } else {
+        var ra = S.remote('PATCH', '/admin/schemes/' + s.id + '/active', { is_active: true });
+        if (ra && ra.status !== 200) return U.toast(S.apiError(ra), 'error');
+        s.is_active = true; S.save(); draw(); U.toast(T('as.activated', 'Scheme activated') + sum(ra && ra.data.notifications), 'success');
+      }
     }; });
     var full = d.schemes.length >= 15, ab = U.$('#add-btn'); ab.disabled = full;
     var tip = bootstrap.Tooltip.getInstance(U.$('#add-wrap')); if (tip) tip.dispose();
     if (full) new bootstrap.Tooltip(U.$('#add-wrap'), { title: T('as.limit', 'The curated list already has 15 schemes. Deactivate or edit one instead.') });
   }
   U.$('#cm-go').addEventListener('click', function () {
+    var rd = S.remote('PATCH', '/admin/schemes/' + toDeact.id + '/active', { is_active: false });
+    if (rd && rd.status !== 200) { confirmM.hide(); return U.toast(S.apiError(rd), 'error'); }
     toDeact.is_active = false;
-    d.users.filter(function (x) { return (d.saved[x.id] || []).indexOf(toDeact.id) > -1; }).forEach(function (x) {
+    if (!rd) d.users.filter(function (x) { return (d.saved[x.id] || []).indexOf(toDeact.id) > -1; }).forEach(function (x) {   // offline demo only; online the server notifies (and emails opted-in users)
       d.notifications.push({ id: Date.now() + x.id, user_id: x.id, scheme_id: toDeact.id, type: 'SCHEME_DEACTIVATED', title_en: toDeact.name_en + ' is no longer active on CivicConnect', title_ta: toDeact.name_ta + ' இப்போது செயலில் இல்லை', is_read: false, created_at: new Date().toISOString().slice(0, 10) });
     });
-    S.save(); confirmM.hide(); draw(); U.toast(T('as.deactivated', 'Scheme deactivated'), 'success');
+    S.save(); CC.bot.rebuild(); confirmM.hide(); draw(); U.toast(T('as.deactivated', 'Scheme deactivated') + sum(rd && rd.data.notifications), 'success');
   });
 
   /* ---------- reusable add/edit form ---------- */
@@ -82,11 +97,14 @@
     var v = function (id) { return U.$('#' + id).value.trim(); };
     var obj = { name_en: v('sf-name_en'), name_ta: v('sf-name_ta'), slug: v('sf-slug'), category_id: Number(v('sf-cat')), level: v('sf-level'), state: v('sf-level') === 'STATE' ? (v('sf-state') || 'Tamil Nadu') : null,
       short_en: v('sf-short_en'), short_ta: v('sf-short_ta'), who_en: v('sf-who'), benefits_en: v('sf-benefits').split('\n').map(function (x) { return x.trim(); }).filter(Boolean),
-      criteria: U.$$('[data-crit]').map(function (r) { var o = {}; U.$$('[data-k]', r).forEach(function (i) { o[i.getAttribute('data-k')] = i.value; }); o.group = Number(o.group) || 1; o.label_ta = ''; return o; }),
+      criteria: U.$$('[data-crit]').map(function (r) { var o = {}; U.$$('[data-k]', r).forEach(function (i) { o[i.getAttribute('data-k')] = i.value; }); o.group = Number(o.group) || 1; var old = editing && editing.criteria.find(function (c) { return c.type === o.type && c.op === o.op && String(c.value) === String(o.value) && c.group === o.group; }); o.label_ta = old ? old.label_ta || '' : ''; return o; }),
       documents: U.$$('[data-doc]:checked').map(function (c) { var id = c.getAttribute('data-doc'); return { id: id, mandatory: U.$('[data-mand="' + id + '"]').value === '1' }; }),
       official_url: v('sf-official'), source_name: v('sf-source_name'), source_url: v('sf-source_url'), last_verified_on: v('sf-verified_on'), is_verified: U.$('#sf-is_verified').checked };
-    if (editing) { obj.id = editing.id; obj.aliases = editing.aliases; obj.image = editing.image; obj.is_active = editing.is_active; }
+    if (editing) { obj.id = editing.id; obj.aliases = editing.aliases; obj.image = editing.image; obj.is_active = editing.is_active; obj.who_ta = editing.who_ta; obj.benefits_ta = editing.benefits_ta; }
     else { obj.aliases = [obj.slug.replace(/-/g, ' ')]; obj.image = S.category(obj.category_id).slug; obj.is_active = true; }
+    var r = S.remote(editing ? 'PUT' : 'POST', '/admin/schemes' + (editing ? '/' + editing.id : ''), obj);   // real API: validates, saves to MySQL, notifies citizens
+    if (r && r.status >= 400) return U.toast(S.apiError(r), 'error');
+    if (r) { replaceLocal(r.data.scheme); modal.hide(); draw(); return U.toast(T('as.savedMsg', 'Scheme saved') + sum(r.data.notifications), 'success'); }
     S.upsert('schemes', obj); CC.bot.rebuild(); modal.hide(); draw(); U.toast(T('as.savedMsg', 'Scheme saved'), 'success');
   });
   U.$('#add-btn').addEventListener('click', function () { openForm(null); });
