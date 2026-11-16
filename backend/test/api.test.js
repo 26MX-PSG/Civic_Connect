@@ -2,6 +2,7 @@
 process.env.NODE_ENV = 'test';
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const { createApp } = require('../src/app');
 const pool = require('../src/db');
 
@@ -40,6 +41,31 @@ test('auth: register, duplicate, validation, login, me', async () => {
   r = await call('GET', '/api/auth/me'); assert.equal(r.status, 401);
   r = await call('GET', '/api/auth/me', { token: 'garbage' }); assert.equal(r.status, 401);
   r = await call('POST', '/api/auth/login', { body: { email: 'admin@demo.in', password: 'admin123' } }); assert.equal(r.status, 200); tok.admin = r.json.token;
+});
+
+test('auth: forgot password and reset password flow', async () => {
+  const email = 'citizen@demo.in';
+  let r = await call('POST', '/api/auth/forgot-password', { body: { email } });
+  assert.equal(r.status, 200);
+  assert.equal(r.json.message, 'If an account exists for that email, a password reset link has been sent.');
+  const [rows] = await pool.query('SELECT token_hash, expires_at FROM password_resets WHERE user_id=(SELECT user_id FROM users WHERE email=?) ORDER BY created_at DESC LIMIT 1', [email]);
+  assert.equal(rows.length, 1);
+  assert.match(rows[0].token_hash, /^[a-f0-9]{64}$/);
+  assert.ok(new Date(rows[0].expires_at).getTime() > Date.now());
+
+  const raw = 'manual-reset-token-' + Date.now();
+  const tokenHash = crypto.createHash('sha256').update(raw).digest('hex');
+  await pool.query('DELETE FROM password_resets WHERE user_id=(SELECT user_id FROM users WHERE email=?)', [email]);
+  await pool.query('INSERT INTO password_resets (user_id, token_hash, expires_at, created_at) VALUES ((SELECT user_id FROM users WHERE email=?), ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE), NOW())', [email, tokenHash]);
+
+  r = await call('POST', '/api/auth/reset-password', { body: { token: raw, password: 'NewPass123' } });
+  assert.equal(r.status, 200);
+  assert.equal(r.json.message, 'Password updated successfully.');
+
+  r = await call('POST', '/api/auth/login', { body: { email, password: 'demo123' } });
+  assert.equal(r.status, 401);
+  r = await call('POST', '/api/auth/login', { body: { email, password: 'NewPass123' } });
+  assert.equal(r.status, 200);
 });
 
 test('roles: admin-only endpoint', async () => {
