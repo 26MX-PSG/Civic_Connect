@@ -32,20 +32,39 @@
     }, 400);
   });
   var p1 = U.$('#r-pass');
+  function passwordStrength(value) {
+    return {
+      length: value.length >= 8,
+      uppercase: /[A-Z]/.test(value),
+      number: /\d/.test(value),
+      special: /[^A-Za-z0-9]/.test(value)
+    };
+  }
+  function isStrongPassword(value) {
+    var s = passwordStrength(value);
+    return s.length && s.uppercase && s.number && s.special;
+  }
   p1.addEventListener('input', function () {
-    var v = p1.value, sc = (v.length >= 8) + /\d/.test(v) + /[A-Z]/.test(v) + /[^A-Za-z0-9]/.test(v);
+    var v = p1.value, s = passwordStrength(v), sc = Object.keys(s).filter(function (k) { return s[k]; }).length;
     U.$('#pass-meter').style.width = (sc * 25) + '%';
-    U.$('#pass-meter').style.background = sc < 2 ? 'var(--cc-error)' : sc < 3 ? 'var(--cc-warning)' : 'var(--cc-success)';
-    U.$('#pass-label').textContent = !v ? T('auth.passHint', 'At least 8 characters, with a number.') : sc < 2 ? T('auth.weak', 'Weak password') : sc < 3 ? T('auth.ok', 'Okay — add a capital letter or symbol') : T('auth.strong', 'Strong password');
+    U.$('#pass-meter').style.background = sc < 4 ? 'var(--cc-error)' : 'var(--cc-success)';
+    U.$('#pass-label').textContent = !v ? T('auth.passHint', 'At least 8 characters, with an uppercase letter, number and special character.') : sc < 4 ? T('auth.weakRules', 'Weak password — use 8+ characters, one uppercase letter, one number and one special character.') : T('auth.strong', 'Strong password');
   });
   U.$('#register-form').addEventListener('submit', function (e) {
     e.preventDefault(); var f = e.target, err = U.$('#register-error'); err.classList.add('d-none');
     var p2 = U.$('#r-pass2'); p2.setCustomValidity(p2.value && p2.value !== p1.value ? 'x' : '');
+    if (!isStrongPassword(p1.value)) {
+      p1.setCustomValidity(T('auth.weakRules', 'Weak password — use 8+ characters, one uppercase letter, one number and one special character.'));
+      err.textContent = T('auth.weakRules', 'Weak password — use 8+ characters, one uppercase letter, one number and one special character.');
+      err.classList.remove('d-none'); err.focus && err.setAttribute('tabindex', '-1'); err.focus();
+    } else {
+      p1.setCustomValidity('');
+    }
     f.classList.add('was-validated'); if (!f.checkValidity()) return;
     var btn = f.querySelector('[type=submit]'); busy(btn, true);
     setTimeout(function () {
       var r = S.register(U.$('#r-name').value, U.$('#r-email').value, p1.value); busy(btn, false);
-      if (!r.ok) { err.textContent = T('auth.exists', 'An account with this email already exists. Try logging in.'); err.classList.remove('d-none'); return; }
+      if (!r.ok) { err.textContent = r.error === 'weak' ? T('auth.weakRules', 'Weak password — use 8+ characters, one uppercase letter, one number and one special character.') : T('auth.exists', 'An account with this email already exists. Try logging in.'); err.classList.remove('d-none'); return; }
       location.href = 'profile.html?welcome=1';
     }, 400);
   });

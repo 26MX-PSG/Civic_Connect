@@ -27,15 +27,15 @@ test('health', async () => { const r = await call('GET', '/api/health'); assert.
 test('unknown endpoint is a JSON 404', async () => { const r = await call('GET', '/api/nope'); assert.equal(r.status, 404); assert.equal(r.json.error.code, 'NOT_FOUND'); });
 
 test('auth: register, duplicate, validation, login, me', async () => {
-  let r = await call('POST', '/api/auth/register', { body: { name: 'Test User', email: newEmail, password: 'secret12' } });
+  let r = await call('POST', '/api/auth/register', { body: { name: 'Test User', email: newEmail, password: 'Secret12!' } });
   assert.equal(r.status, 201); assert.equal(r.json.user.role, 'USER'); assert.ok(r.json.token); tok.user = r.json.token;
   assert.equal(r.json.user.password_hash, undefined);
-  r = await call('POST', '/api/auth/register', { body: { name: 'Test User', email: newEmail, password: 'secret12' } }); assert.equal(r.status, 409);
-  r = await call('POST', '/api/auth/register', { body: { name: 'X', email: 'bad', password: '1' } }); assert.equal(r.status, 400);
-  r = await call('POST', '/api/auth/register', { body: { name: 'Hacker', email: `tester${uniq}b@example.in`, password: 'secret12', role: 'ADMIN' } });
-  assert.equal(r.json.user.role, 'USER', 'cannot self-register as admin');
+  r = await call('POST', '/api/auth/register', { body: { name: 'Test User', email: newEmail, password: 'Secret12!' } }); assert.equal(r.status, 409);
+  r = await call('POST', '/api/auth/register', { body: { name: 'X', email: 'bad', password: 'weak' } }); assert.equal(r.status, 400);
+  r = await call('POST', '/api/auth/register', { body: { name: 'Hacker', email: `tester${uniq}b@example.in`, password: 'Secret12!', role: 'ADMIN' } });
+  assert.equal(r.status, 201); assert.equal(r.json.user.role, 'USER', 'cannot self-register as admin');
   r = await call('POST', '/api/auth/login', { body: { email: newEmail, password: 'wrong' } }); assert.equal(r.status, 401);
-  r = await call('POST', '/api/auth/login', { body: { email: newEmail, password: 'secret12' } }); assert.equal(r.status, 200);
+  r = await call('POST', '/api/auth/login', { body: { email: newEmail, password: 'Secret12!' } }); assert.equal(r.status, 200);
   r = await call('GET', '/api/auth/me', { token: tok.user }); assert.equal(r.json.user.email, newEmail);
   r = await call('GET', '/api/auth/me'); assert.equal(r.status, 401);
   r = await call('GET', '/api/auth/me', { token: 'garbage' }); assert.equal(r.status, 401);
@@ -116,7 +116,7 @@ test('recommendations: matching rules', async () => {
   assert.ok(!r.json.matches.concat(r.json.partial).some((x) => x.scheme.slug === 'pm-svanidhi'), 'inactive excluded');
   assert.match(r.json.disclaimer, /basic criteria/);
   // empty profile -> only partial
-  const reg = await call('POST', '/api/auth/register', { body: { name: 'Empty Profile', email: `tester${uniq}c@example.in`, password: 'secret12' } });
+  const reg = await call('POST', '/api/auth/register', { body: { name: 'Empty Profile', email: `tester${uniq}c@example.in`, password: 'Secret12!' } });
   r = await call('GET', '/api/recommendations', { token: reg.json.token }); assert.equal(r.json.matches.length, 0); assert.ok(r.json.partial.length > 5);
 });
 

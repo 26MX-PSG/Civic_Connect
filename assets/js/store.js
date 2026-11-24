@@ -168,10 +168,13 @@ CC.store = (function () {
     return { ok: true, user: u };
   }
   function register(name, email, password) {
+    var strong = password.length >= 8 && /[A-Z]/.test(password) && /\d/.test(password) && /[^A-Za-z0-9]/.test(password);
+    if (!strong) return { ok: false, error: 'weak' };
     var d = db();
     if (isOnline()) {
       var r = http('POST', '/auth/register', { name: name.trim(), email: email.trim(), password: password, preferred_language: (CC.i18n && CC.i18n.lang === 'ta') ? 'TA' : 'EN' });
       if (r && r.status === 201) return { ok: true, user: adopt(d, r.data.user, r.data.token) };
+      if (r && r.status === 400) return { ok: false, error: 'weak' };
       return { ok: false, error: r && r.status === 409 ? 'exists' : 'invalid' };
     }
     if (d.users.some(function (x) { return x.email.toLowerCase() === email.trim().toLowerCase(); })) return { ok: false, error: 'exists' };

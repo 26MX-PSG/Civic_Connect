@@ -13,7 +13,10 @@ router.post('/register', wrap(async (req, res) => {
   const b = req.body || {};
   const name = v.str(b.name, 'name', { min: 2, max: 100 });
   const email = v.email(b.email);
-  const password = v.str(b.password, 'password', { min: 6, max: 72 });
+  const password = v.str(b.password, 'password', { min: 8, max: 72 });
+  if (!/[A-Z]/.test(password) || !/\d/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+    throw bad('Weak password — use at least 8 characters, one uppercase letter, one number and one special character');
+  }
   const lang = v.oneOf(b.preferred_language, C.languages, 'preferred_language') || 'EN';
   const [dup] = await pool.query('SELECT 1 FROM users WHERE email=?', [email]);
   if (dup.length) throw new ApiError(409, 'EMAIL_EXISTS', 'An account with this email already exists');
