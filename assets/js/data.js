@@ -349,7 +349,7 @@ CC.seed = {
   ],
 
   users: [
-    { id: 1, name: 'Admin ', email: '26MX102@psgtech.ac.in', password: 'dav231107', role: 'ADMIN', preferred_language: 'EN', email_notifications: false, is_active: true, created_at: '2026-08-01' },
+    { id: 1, name: 'Aloysus Maria Raj.A', email: '26MX102@psgtech.ac.in', password: 'dav231107', role: 'ADMIN', preferred_language: 'EN', email_notifications: false, is_active: true, created_at: '2026-08-01' },
     { id: 2, name: 'Deepa Dharshini G', email: '26MX203@psgtech.ac.in', password: '26MX203', role: 'USER', preferred_language: 'EN', email_notifications: true, is_active: true, created_at: '2026-09-02' },
     { id: 3, name: 'Varshana R', email: '26MX225@psgtech.ac.in', password: '26MX225', role: 'USER', is_active: true, created_at: '2026-09-04' },
     { id: 4, name: 'Haresh', email: '26MX205@psgtech.ac.in', password: '26MX205', role: 'USER', is_active: true, created_at: '2026-09-08' },
