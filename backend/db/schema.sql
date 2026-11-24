@@ -164,7 +164,7 @@ CREATE TABLE feedback (
   scheme_id   INT NOT NULL,
   user_id     INT NULL,
   useful      BOOLEAN NOT NULL,
-  comment     VARCHAR(200) NULL,
+  comment     VARCHAR(2000) NULL,
   created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_feedback_user_scheme (scheme_id, user_id),
   FOREIGN KEY (scheme_id) REFERENCES schemes(scheme_id) ON DELETE CASCADE,

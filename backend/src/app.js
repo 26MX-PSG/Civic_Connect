@@ -40,10 +40,11 @@ function createApp() {
     ['POST', '/api/saved', 'user', 'Save a scheme (saved_schemes INSERT)'],
     ['DELETE', '/api/saved/:schemeId', 'user', 'Unsave a scheme (saved_schemes DELETE)'],
     ['GET', '/api/feedback/:schemeId', '-', 'Useful / not useful totals'],
-    ['PUT', '/api/feedback/:schemeId', 'user', 'Vote + comment (feedback UPSERT)'],
+    ['PUT', '/api/feedback/:schemeId', 'user', 'Submit or replace Yes/No feedback and a written comment'],
     ['GET', '/api/notifications', 'user', 'My notifications'],
     ['PATCH', '/api/notifications/:id/read', 'user', 'Mark as read (notifications UPDATE)'],
-    ['GET', '/api/admin/users', 'admin', 'User list for admins']
+    ['GET', '/api/admin/users', 'admin', 'User list for admins'],
+    ['GET', '/api/admin/feedback?schemeId=', 'admin', 'Detailed submitted feedback with optional scheme filter']
   ];
   app.get('/api', (req, res) => res.json({ name: 'CivicConnect API', endpoints: ENDPOINTS.map(([method, path, auth, description]) => ({ method, path, auth, description })) }));
   app.get('/api-docs', (req, res) => res.type('html').send(`<!doctype html><meta charset="utf-8"><title>CivicConnect API</title>
