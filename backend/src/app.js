@@ -45,7 +45,7 @@ function createApp() {
     ['GET', '/api/notifications', 'user', 'My notifications'],
     ['PATCH', '/api/notifications/:id/read', 'user', 'Mark as read (notifications UPDATE)'],
     ['GET', '/api/admin/users', 'admin', 'User list for admins'],
-    ['GET', '/api/admin/feedback?schemeId=', 'admin', 'Detailed submitted feedback with optional scheme filter']
+    ['GET', '/api/admin/feedback?schemeId=', 'admin', 'Detailed submitted feedback with optional scheme filter'],
     ['POST', '/api/chat/log', '-', 'Chatbot/search reports an unanswered question'],
     ['GET', '/api/admin/users', 'admin', 'User list for admins'],
     ['PATCH', '/api/admin/users/:id', 'admin', 'Enable / disable a citizen account'],
@@ -62,7 +62,7 @@ function createApp() {
     ['PUT', '/api/admin/documents/:id', 'admin', 'Edit document guide entry'],
     ['GET', '/api/admin/queries', 'admin', 'Unanswered queries'],
     ['PATCH', '/api/admin/queries/:id', 'admin', 'Set review status'],
-    ['GET', '/api/admin/feedback', 'admin', 'Feedback totals + comments per scheme'],
+    ['GET', '/api/admin/feedback/summary', 'admin', 'Feedback totals + comments per scheme'],
     ['POST', '/api/admin/announcements', 'admin', 'Announcement: notification to all + email to opted-in users'],
     ['GET', '/api/admin/mail/status', 'admin', 'Check SMTP settings'],
     ['POST', '/api/admin/mail/test', 'admin', 'Send a test email']

@@ -240,8 +240,8 @@ test('admin: only admins, validation, stats, mail status', async () => {
 
 test('admin: scheme lifecycle sends NEW_MATCH, SCHEME_UPDATED, SCHEME_DEACTIVATED (in-app + email for opted-in only)', async () => {
   // opted-in student with a profile; second student NOT opted in
-  const optIn = await call('POST', '/api/auth/register', { body: { name: 'Opt In', email: `tester${uniq}o@example.in`, password: 'secret12' } });
-  const optOut = await call('POST', '/api/auth/register', { body: { name: 'Opt Out', email: `tester${uniq}n@example.in`, password: 'secret12' } });
+  const optIn = await call('POST', '/api/auth/register', { body: { name: 'Opt In', email: `tester${uniq}o@example.in`, password: 'Secret12!' } });
+  const optOut = await call('POST', '/api/auth/register', { body: { name: 'Opt Out', email: `tester${uniq}n@example.in`, password: 'Secret12!' } });
   const prof = { dob: '2005-06-14', gender: 'FEMALE', income: 250000, occupation: 'STUDENT', student_level: 'UG', state: 'Tamil Nadu', district: 'Coimbatore', disability_type: 'NONE' };
   for (const t of [optIn.json.token, optOut.json.token]) await call('PUT', '/api/profiles/me', { token: t, body: prof });
   await call('PATCH', '/api/auth/me', { token: optIn.json.token, body: { email_notifications: true } });
@@ -285,7 +285,7 @@ test('admin: announcement, users, queries, feedback, categories, faqs', async ()
   r = await call('PATCH', `/api/admin/queries/${q.id}`, { token: tok.admin, body: { review_status: 'REVIEWED' } }); assert.equal(r.json.review_status, 'REVIEWED');
   r = await call('PATCH', `/api/admin/queries/${q.id}`, { token: tok.admin, body: { review_status: 'BOGUS' } }); assert.equal(r.status, 400);
 
-  r = await call('GET', '/api/admin/feedback', { token: tok.admin }); assert.ok(r.json.length >= 15 && Array.isArray(r.json[0].comments));
+  r = await call('GET', '/api/admin/feedback/summary', { token: tok.admin }); assert.ok(r.json.length >= 15 && Array.isArray(r.json[0].comments));
 
   r = await call('POST', '/api/admin/categories', { token: tok.admin, body: { slug: 'zz-cat-' + uniq, name_en: 'ZZ Cat' } }); assert.equal(r.status, 201); const cid = r.json.id;
   r = await call('GET', '/api/categories'); assert.ok(!r.json.some((c) => c.id === cid), 'empty category hidden publicly');

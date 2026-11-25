@@ -51,7 +51,7 @@ CC.store = (function () {
     var r = http('GET', '/admin/users');
     if (r && r.status === 200 && Array.isArray(r.data)) d.users = d.users.filter(function (u) { return u.role !== 'USER'; }).concat(r.data.map(function (u) { return Object.assign({ email_notifications: false }, u, { created_at: String(u.created_at).slice(0, 10) }); }));
     r = http('GET', '/admin/queries'); if (r && r.status === 200 && Array.isArray(r.data)) d.queries = r.data;
-    r = http('GET', '/admin/feedback'); if (r && r.status === 200 && Array.isArray(r.data)) d.feedback = r.data;
+    r = http('GET', '/admin/feedback/summary'); if (r && r.status === 200 && Array.isArray(r.data)) d.feedback = r.data;
   }
   /* Synchronous call to the real API for admin writes. Returns null when offline / not logged in (caller falls back to local demo data). */
   function remote(method, path, body) { return (get(TOKEN) && isOnline()) ? http(method, path, body) : null; }
