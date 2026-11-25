@@ -76,7 +76,24 @@
   });
   // portal (leaving notice)
   var lm = new bootstrap.Modal(U.$('#leave-modal'));
-  U.$('#portal-btn').addEventListener('click', function () { U.$('#leave-go').href = s.official_url; U.$('#leave-url').textContent = s.official_url; lm.show(); });
+  function completed18(dob) {
+    if (!dob) return null;
+    var parts = dob.split('-').map(Number);
+    if (parts.length !== 3) return null;
+    var birth = new Date(parts[0], parts[1] - 1, parts[2]);
+    if (birth.getFullYear() !== parts[0] || birth.getMonth() !== parts[1] - 1 || birth.getDate() !== parts[2]) return null;
+    var today = new Date();
+    var age = today.getFullYear() - birth.getFullYear();
+    if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+    return age >= 18;
+  }
+  U.$('#portal-btn').addEventListener('click', function () {
+    if (u && prof && completed18(prof.dob) === false) {
+      U.toast(T('profile.dobUnder18', 'You must be at least 18 years old to apply for this scheme.'), 'error');
+      return;
+    }
+    U.$('#leave-go').href = s.official_url; U.$('#leave-url').textContent = s.official_url; lm.show();
+  });
   U.$('#leave-go').addEventListener('click', function () { lm.hide(); });
   // checklist
   function prog() {

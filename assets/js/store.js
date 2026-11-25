@@ -201,8 +201,21 @@ CC.store = (function () {
 
   /* ---------- profile ---------- */
   function profile(uid) { return (db().profiles || {})[uid] || null; }
-  function saveProfile(uid, p) { var d = db(); d.profiles = d.profiles || {}; d.profiles[uid] = p; save();
-    if (get(TOKEN)) http('PUT', '/profiles/me', p, true); }
+  function saveProfile(uid, p) {
+    if (p.dob) {
+      var parts = /^\d{4}-\d{2}-\d{2}$/.test(p.dob) ? p.dob.split('-').map(Number) : null;
+      var dob = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : null;
+      var valid = dob && dob.getFullYear() === parts[0] && dob.getMonth() === parts[1] - 1 && dob.getDate() === parts[2];
+      if (!valid) throw new Error('Enter a valid date of birth.');
+      var today = new Date();
+      if (dob > today) throw new Error('Date of birth cannot be in the future.');
+      var age = today.getFullYear() - dob.getFullYear();
+      if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) age--;
+      if (age < 18) throw new Error('You must be at least 18 years old to apply for this scheme.');
+    }
+    var d = db(); d.profiles = d.profiles || {}; d.profiles[uid] = p; save();
+    if (get(TOKEN)) http('PUT', '/profiles/me', p, true);
+  }
 
   /* ---------- saved ---------- */
   function saved(uid) { return ((db().saved || {})[uid] || []).slice(); }

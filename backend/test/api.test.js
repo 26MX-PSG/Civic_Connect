@@ -158,6 +158,7 @@ test('profile: validation, save, read, consistency', async () => {
   r = await call('PUT', '/api/profiles/me', { token: tok.user, body: { dob: '2005-06-14', gender: 'FEMALE', income: 250000, occupation: 'STUDENT', student_level: 'UG', state: 'Tamil Nadu', district: 'Coimbatore', disability_type: 'NONE', farmer_land_status: 'OWN_LAND' } });
   assert.equal(r.status, 200); assert.equal(r.json.profile.farmer_land_status, null, 'dropped: not a farmer'); assert.equal(r.json.completion, 100);
   r = await call('GET', '/api/profiles/me', { token: tok.user }); assert.equal(r.json.profile.dob, '2005-06-14'); assert.equal(r.json.profile.income, 250000);
+  r = await call('PUT', '/api/profiles/me', { token: tok.user, body: { dob: '2010-01-01' } }); assert.equal(r.status, 400); assert.match(r.json.error.message, /at least 18 years old/i);
 });
 
 test('recommendations: matching rules', async () => {
