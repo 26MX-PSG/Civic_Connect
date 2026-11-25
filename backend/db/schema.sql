@@ -14,7 +14,7 @@ CREATE TABLE users (
   email_notifications BOOLEAN NOT NULL DEFAULT FALSE,
   is_active           BOOLEAN NOT NULL DEFAULT TRUE,
   created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE password_resets (
   reset_id     INT PRIMARY KEY AUTO_INCREMENT,
@@ -27,7 +27,7 @@ CREATE TABLE password_resets (
   KEY idx_password_resets_user (user_id),
   KEY idx_password_resets_expiry (expires_at),
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE categories (
   category_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -37,7 +37,7 @@ CREATE TABLE categories (
   name_ta     VARCHAR(150) NULL,
   description TEXT NULL,
   is_active   BOOLEAN NOT NULL DEFAULT TRUE
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE documents (
   document_id     VARCHAR(40) PRIMARY KEY,
@@ -48,7 +48,7 @@ CREATE TABLE documents (
   where_to_get_ta TEXT NULL,
   issuer_url      VARCHAR(500) NULL,
   issuer_label    VARCHAR(100) NULL
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE schemes (
   scheme_id        INT PRIMARY KEY AUTO_INCREMENT,
@@ -74,14 +74,14 @@ CREATE TABLE schemes (
   FOREIGN KEY (category_id) REFERENCES categories(category_id),
   INDEX idx_schemes_category (category_id),
   INDEX idx_schemes_active (is_active, level, state)
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE scheme_aliases (
   alias_id  INT PRIMARY KEY AUTO_INCREMENT,
   scheme_id INT NOT NULL,
   alias     VARCHAR(100) NOT NULL,
   FOREIGN KEY (scheme_id) REFERENCES schemes(scheme_id) ON DELETE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Criteria in the same criteria_group are ANDed; a scheme matches if any group passes (OR).
 CREATE TABLE scheme_criteria (
@@ -94,7 +94,7 @@ CREATE TABLE scheme_criteria (
   label_en       VARCHAR(200) NULL,
   label_ta       VARCHAR(250) NULL,
   FOREIGN KEY (scheme_id) REFERENCES schemes(scheme_id) ON DELETE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE scheme_documents (
   scheme_id    INT NOT NULL,
@@ -104,7 +104,7 @@ CREATE TABLE scheme_documents (
   PRIMARY KEY (scheme_id, document_id),
   FOREIGN KEY (scheme_id) REFERENCES schemes(scheme_id) ON DELETE CASCADE,
   FOREIGN KEY (document_id) REFERENCES documents(document_id)
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE faqs (
   faq_id      INT PRIMARY KEY AUTO_INCREMENT,
@@ -116,7 +116,7 @@ CREATE TABLE faqs (
   answer_ta   TEXT NULL,
   is_active   BOOLEAN NOT NULL DEFAULT TRUE,
   FOREIGN KEY (category_id) REFERENCES categories(category_id)
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE profiles (
   user_id            INT PRIMARY KEY,
@@ -131,7 +131,7 @@ CREATE TABLE profiles (
   disability_type    VARCHAR(30) NULL,
   updated_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE saved_schemes (
   user_id    INT NOT NULL,
@@ -140,7 +140,7 @@ CREATE TABLE saved_schemes (
   PRIMARY KEY (user_id, scheme_id),
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
   FOREIGN KEY (scheme_id) REFERENCES schemes(scheme_id) ON DELETE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Search and chatbot questions that found nothing (reviewed by admins)
 CREATE TABLE search_queries (
@@ -156,7 +156,7 @@ CREATE TABLE search_queries (
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
   FOREIGN KEY (scheme_id) REFERENCES schemes(scheme_id) ON DELETE SET NULL,
   INDEX idx_sq_text (query_text, source)
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- One row per vote. user_id is NULL only for seeded demo votes. A user has one vote per scheme.
 CREATE TABLE feedback (
@@ -169,7 +169,7 @@ CREATE TABLE feedback (
   UNIQUE KEY uq_feedback_user_scheme (scheme_id, user_id),
   FOREIGN KEY (scheme_id) REFERENCES schemes(scheme_id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE notifications (
   notification_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -183,4 +183,4 @@ CREATE TABLE notifications (
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
   FOREIGN KEY (scheme_id) REFERENCES schemes(scheme_id) ON DELETE SET NULL,
   INDEX idx_notif_user (user_id, is_read)
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

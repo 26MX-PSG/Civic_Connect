@@ -1,0 +1,7 @@
+.env
+.env.*
+node_modules
+backend/test
+postman
+.postman
+test.txt
