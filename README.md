@@ -5,22 +5,22 @@ and a **Scheme chatbot**. 14 pages. Works fully offline — Bootstrap, icons and
 
 ## Run it
 
-**Option 1 – just open it:** double-click `index.html`.
+**Full instructions (from scratch, email, admin workflow, Railway deployment): see [SETUP.md](SETUP.md).**
 
-**Option 2 – VS Code (recommended):** open the folder → install the *Live Server* extension →
-right-click `index.html` → **Open with Live Server**.
+Short version:
+```bash
+cp .env.example .env
+docker compose down -v && docker compose up -d     # fresh MySQL (wait for "healthy")
+cd backend && npm install && npm run db:reset && npm start
+```
+Then open **http://localhost:3000** (the server serves the website and the API).
 
-No build step and no internet connection are needed. Data is stored in your browser (`localStorage`).
-
-## Demo accounts
+## Demo accounts (local seed)
 
 | Role | Email | Password |
 |---|---|---|
-| Citizen (profile filled in) | citizen@demo.in | demo123 |
-| Admin | admin@demo.in | admin123 |
-
-The login page also has one-click **Log in as Citizen / Admin** buttons.
-To start fresh: **Admin dashboard → Reset demo data**.
+| Admin | 26MX102@psgtech.ac.in | dav231107 |
+| Citizen (profile filled in, email notifications on) | 26MX203@psgtech.ac.in | 26MX203 |
 
 ## Try the chatbots
 
@@ -93,7 +93,31 @@ Errors always look like `{ "error": { "code", "message" } }`. Send `Authorizatio
 | `GET / POST / DELETE /api/saved` 🔒 | `POST {scheme_id}`, `DELETE /api/saved/:schemeId` |
 | `GET / PUT /api/feedback/:schemeId` | totals; `PUT {useful, comment?}` 🔒 (one vote per user, replaceable) |
 | `GET /api/notifications`, `PATCH /api/notifications/:id/read` 🔒 | |
-| `GET /api/admin/users` 🔒 ADMIN | name, email, status only |
+| `GET /api/admin/users`, `PATCH /api/admin/users/:id` 🔒 ADMIN | name, email, status only; enable / disable |
+| `GET /api/admin/stats`, `GET /api/admin/feedback`, `GET / PATCH /api/admin/queries` 🔒 ADMIN | dashboard numbers, feedback + comments, unanswered queries and review status |
+| `POST / PUT /api/admin/schemes`, `PATCH /api/admin/schemes/:id/active` 🔒 ADMIN | add / edit / (de)activate a scheme. Sends **NEW_MATCH**, **SCHEME_UPDATED**, **SCHEME_DEACTIVATED** notifications |
+| `POST /api/admin/announcements` 🔒 ADMIN | **ANNOUNCEMENT** to every active citizen |
+| `POST / PUT /api/admin/categories`, `POST / PUT / DELETE /api/admin/faqs`, `PUT /api/admin/documents/:id` 🔒 ADMIN | content management |
+| `POST /api/chat/log` | the assistants / search report an unanswered question for admin review |
+| `GET /api/admin/mail/status`, `POST /api/admin/mail/test` 🔒 ADMIN | check SMTP and send a test email |
+
+### Email setup (Nodemailer)
+Every notification is saved in the app (bell icon). A citizen **also gets an email** only if they ticked *email notifications* on their dashboard. Password-reset emails are always sent. Without SMTP settings, emails are only printed to the server console.
+
+1. Gmail: turn on **2-Step Verification**, then create an **App Password** at https://myaccount.google.com/apppasswords (16 characters; your normal password will NOT work).
+2. In the root `.env` set (no quotes around the password; spaces are ignored):
+   ```
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_SECURE=false
+   SMTP_USER=yourname@gmail.com
+   SMTP_PASS=abcdefghijklmnop
+   SMTP_FROM="CivicConnect <yourname@gmail.com>"
+   FRONTEND_URL=http://localhost:3000
+   ```
+   `SMTP_FROM` must use the same address as `SMTP_USER` on Gmail. Port 465 works too (it switches to SSL automatically).
+3. `cd backend && npm install && npm run mail:test -- yourname@gmail.com` — prints `OK` or the exact reason it failed.
+4. Restart `npm start`; the log shows `[mail] SMTP login OK`.
 
 ### Postman
 Import `backend/postman/CivicConnect.postman_collection.json` and `CivicConnect.local.postman_environment.json`, select the "CivicConnect Local" environment, then run the **Auth** folder first (it stores the tokens), then any other folder.

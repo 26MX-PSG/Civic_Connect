@@ -6,7 +6,7 @@
   function go(u) {
     if (u.role === 'ADMIN' && (!next || !/^admin\//.test(next))) return location.href = 'admin/index.html';
     if (next && !/^(https?:)?\/\//.test(next)) return location.href = next;
-    location.href = S.profile(u.id) ? 'dashboard.html' : 'profile.html';
+    location.href = 'dashboard.html';
   }
   if (S.currentUser() && !reason) go(S.currentUser());
   if (reason) U.$('#auth-reason').innerHTML = '<div class="warn-box mb-3"><i class="bi bi-info-circle" aria-hidden="true"></i><span>' +
@@ -46,7 +46,7 @@
     setTimeout(function () {
       var r = S.register(U.$('#r-name').value, U.$('#r-email').value, p1.value); busy(btn, false);
       if (!r.ok) { err.textContent = T('auth.exists', 'An account with this email already exists. Try logging in.'); err.classList.remove('d-none'); return; }
-      location.href = 'profile.html?welcome=1';
+      location.href = 'dashboard.html';
     }, 400);
   });
   U.$$('[data-demo]').forEach(function (b) {

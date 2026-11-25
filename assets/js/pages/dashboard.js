@@ -6,13 +6,13 @@
   U.$('#greet').textContent = T('dash.hello', 'Vanakkam') + ', ' + u.name.split(' ')[0];
   U.$('#today').textContent = U.date(new Date().toISOString().slice(0, 10));
   var pc = CC.match.completion(p);
-  if (pc < 100) U.$('#completion').innerHTML = '<div class="panel mb-4 d-flex flex-wrap gap-3 align-items-center"><div class="ring" style="--p:' + pc + '"><span>' + pc + '%</span></div><div class="flex-grow-1"><h2 class="h5 mb-1">' + U.esc(T('dash.completeH', 'Complete your profile for better matches')) + '</h2><p class="text-muted small mb-0">' + U.esc(T('dash.completeP', 'Some schemes show “Partial match” because a few details are missing.')) + '</p></div><a class="btn btn-primary" href="profile.html">' + U.esc(T('dash.completeBtn', 'Complete profile')) + '</a></div>';
+  if (pc < 100) U.$('#completion').innerHTML = '<div class="panel mb-4 d-flex flex-wrap gap-3 align-items-center"><div class="ring" style="--p:' + pc + '"><span>' + pc + '%</span></div><div class="flex-grow-1"><h2 class="h5 mb-1">' + U.esc(T('dash.completeH', 'Complete your profile for better matches')) + '</h2><p class="text-muted small mb-0">' + U.esc(T('dash.completeP', 'Some schemes show “Partial match” because a few details are missing.')) + '</p></div><a class="btn btn-primary" href="matching.html">' + U.esc(T('dash.completeBtn', 'Complete profile')) + '</a></div>';
   var m = U.$('#dash-matches');
   m.innerHTML = U.skeletonCards(2);
   CC.api('profile', u.id).then(function (pr) {
     var recs = pr ? CC.match.recommend(pr).sort(function (a, b) { return a.result.status === b.result.status ? 0 : a.result.status === 'MATCH' ? -1 : 1; }) : [];
     m.innerHTML = recs.length ? recs.slice(0, 4).map(function (r) { return '<div class="col">' + U.schemeCard(r.scheme, { result: { status: r.result.status, reasons: [], missing: [] } }) + '</div>'; }).join('')
-      : '<div class="col-12">' + U.empty('stars', T('dash.noMatches', 'No matches yet'), T('dash.noMatchesT', 'Complete your profile to see schemes that match your details.'), '<a class="btn btn-primary" href="profile.html">' + U.esc(T('dash.completeBtn', 'Complete profile')) + '</a>') + '</div>';
+      : '<div class="col-12">' + U.empty('stars', T('dash.noMatches', 'No matches yet'), T('dash.noMatchesT', 'Complete your profile to see schemes that match your details.'), '<a class="btn btn-primary" href="matching.html">' + U.esc(T('dash.completeBtn', 'Complete profile')) + '</a>') + '</div>';
     U.bindSave(m);
   });
   var saved = S.saved(u.id).length;

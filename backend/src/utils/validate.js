@@ -38,8 +38,14 @@ const date = (v, name) => {
   if (dob > today) throw bad(name + ' cannot be in the future');
   if (year < 1900) throw bad(name + ' is not a valid date');
 
-  let age = today.getFullYear() - dob.getFullYear();
-  if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) age--;
+  return v;
+};
+const dob = (v, name) => {
+  if (date(v, name) === null) return null;
+  const [year, month, day] = v.split('-').map(Number);
+  const today = new Date();
+  let age = today.getFullYear() - year;
+  if (today.getMonth() < month - 1 || (today.getMonth() === month - 1 && today.getDate() < day)) age--;
   if (age < 18) throw bad('You must be at least 18 years old to apply for this scheme');
 
   return v;
@@ -50,4 +56,4 @@ const email = (v) => {
   return t;
 };
 
-module.exports = { str, oneOf, int, id, date, email };
+module.exports = { str, oneOf, int, id, date, dob, email };

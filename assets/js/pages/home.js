@@ -4,7 +4,7 @@
   U.$('#hero-img').innerHTML = U.img('hero', 'hero', '', 'hero-img');
   // Find My Schemes → profile (or register first)
   var u = S.currentUser();
-  U.$('#find-btn').href = u ? (S.profile(u.id) ? 'recommendations.html' : 'profile.html') : 'login.html?next=profile.html&tab=register';
+  U.$('#find-btn').href = u ? (S.profile(u.id) ? 'matching.html#results' : 'matching.html') : 'login.html?next=matching.html';
   // empty search hint
   U.$('.hero-search').addEventListener('submit', function (e) {
     if (!U.$('#hero-q').value.trim()) { e.preventDefault(); U.$('#hero-hint').hidden = false; U.$('#hero-q').focus(); }
