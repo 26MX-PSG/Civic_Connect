@@ -1,6 +1,6 @@
 -- CivicConnect MySQL schema (DESIGN.md section 7). Safe to re-run: drops and recreates all tables.
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS notifications, feedback, search_queries, saved_schemes, profiles,
+DROP TABLE IF EXISTS password_resets, notifications, feedback, search_queries, saved_schemes, profiles,
   scheme_documents, scheme_criteria, scheme_aliases, schemes, documents, faqs, categories, users;
 SET FOREIGN_KEY_CHECKS = 1;
 

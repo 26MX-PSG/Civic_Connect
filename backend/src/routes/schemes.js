@@ -5,22 +5,16 @@ const { loadSchemes, findScheme } = require('../schemeRepo');
 const { wrap, notFound, bad } = require('../utils/errors');
 const { norm } = require('../utils/text');
 const C = require('../constants');
+const { logUnanswered } = require('../utils/queryLog');
 
 const STOP = new Set(['the', 'a', 'an', 'for', 'of', 'to', 'in', 'and', 'scheme', 'schemes', 'yojana', 'me', 'my', 'is', 'with', 'on', 'திட்டம்']);
-
-async function logNoResult(text, userId) {
-  const t = String(text || '').trim().slice(0, 255);
-  if (!t) return;
-  const [ex] = await pool.query("SELECT query_id FROM search_queries WHERE source='SEARCH' AND LOWER(query_text)=LOWER(?) LIMIT 1", [t]);
-  if (ex.length) await pool.query('UPDATE search_queries SET count=count+1, created_at=NOW() WHERE query_id=?', [ex[0].query_id]);
-  else await pool.query("INSERT INTO search_queries (user_id,query_text,source,result_found) VALUES (?,?,'SEARCH',FALSE)", [userId || null, t]);
-}
 
 // GET /api/schemes?keyword=&category=<id|slug>(,more)&level=&state=
 router.get('/', optionalAuth, wrap(async (req, res) => {
   const { keyword, category, level, state } = req.query;
   if (level && !C.levels.includes(level)) throw bad('level must be CENTRAL or STATE');
-  let list = await loadSchemes();
+  const isAdmin = req.user && req.user.role === 'ADMIN';
+  let list = await loadSchemes({ includeInactive: isAdmin && req.query.includeInactive === '1' });
   const [catRows] = await pool.query('SELECT category_id, slug, name_en, name_ta FROM categories');
   const cats = Object.fromEntries(catRows.map((c) => [c.category_id, c]));
 
@@ -51,7 +45,7 @@ router.get('/', optionalAuth, wrap(async (req, res) => {
       return { s, hits, score };
     }).filter((x) => x.hits === terms.length || (terms.length > 2 && x.hits >= terms.length - 1))
       .sort((a, b) => b.score - a.score).map((x) => x.s);
-    if (!list.length) await logNoResult(keyword, req.user && req.user.user_id);
+    if (!list.length) await logUnanswered(keyword, req.user && req.user.user_id);
   }
   res.json(list.map((s) => ({ ...s, category: cats[s.category_id] ? { id: s.category_id, slug: cats[s.category_id].slug, name_en: cats[s.category_id].name_en, name_ta: cats[s.category_id].name_ta } : null })));
 }));

@@ -28,12 +28,12 @@ the Express API can be dropped in later without touching the pages.
 |---|------|------|--------|-------|
 | 1 | Home | `index.html` | Public | Hero search, 6 categories, how-it-works, assistant promo, popular schemes |
 | 2 | Login / Register | `login.html` | Public | One page, two tabs, demo-account buttons, `?next=` redirect |
-| 3 | Citizen profile | `profile.html` | Citizen | 3-step form, conditional fields, completion ring |
+| 3 | Citizen profile | `matching.html` | Citizen | 3-step form, conditional fields, completion ring |
 | 4 | Citizen dashboard | `dashboard.html` | Citizen | Matches, tiles, notifications |
 | 5 | Categories | `categories.html` | Public | 10 category tiles with photos |
 | 6 | Discover (search + results + no-results) | `schemes.html` | Public | Filters sync with URL; no-result searches are logged |
 | 7 | Scheme details | `scheme.html?slug=` | Public | 4 tabs, checklist, **Scheme chatbot**, feedback |
-| 8 | Recommendations | `recommendations.html` | Citizen | Basic Criteria Match / Partial match groups |
+| 8 | Recommendations | merged into `matching.html` | Citizen | Basic Criteria Match / Partial match groups |
 | 9 | Saved schemes | `saved.html` | Citizen | Document progress, remove + undo |
 | 10 | Help & FAQs | `help.html` | Public | FAQ search, document guide, **General chatbot (inline)** |
 | 11 | Admin dashboard | `admin/index.html` | Admin | Stats, verification overdue, unanswered chatbot questions |
@@ -272,8 +272,8 @@ FAQs/schemes/documents from MySQL instead of `CC.store`, and keep the same respo
 
 ```
 civicconnect/
-├─ index.html  login.html  profile.html  dashboard.html  categories.html
-├─ schemes.html  scheme.html  recommendations.html  saved.html  help.html
+├─ index.html  login.html  matching.html  dashboard.html  categories.html
+├─ schemes.html  scheme.html   saved.html  help.html
 ├─ admin/  index.html  schemes.html  content.html  activity.html
 ├─ assets/
 │  ├─ css/styles.css            design tokens + all component styles

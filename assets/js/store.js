@@ -20,7 +20,10 @@ CC.store = (function () {
   /* ---------- real backend bridge (Express + MySQL) ----------
    * Synchronous XHR keeps the existing page code unchanged. If the API is unreachable
    * every call returns null and the store falls back to localStorage demo data. */
-  var API = (location.port === '3000') ? '/api' : 'http://localhost:3000/api';
+  // Same origin when the Express server serves the pages (localhost:3000 or any hosted https address).
+  // Only a static dev server (file://, Live Server on :5500 …) needs to reach the API on localhost:3000.
+  var devStatic = location.protocol === 'file:' || ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && location.port && location.port !== '3000');
+  var API = devStatic ? 'http://localhost:3000/api' : '/api';
   var TOKEN = 'cc_token';
   function http(method, path, body, async) {
     try {
@@ -37,10 +40,22 @@ CC.store = (function () {
   function isOnline() { if (online === null) { var r = http('GET', '/health'); online = !!(r && r.status === 200); if (window.console) console.info('[CivicConnect] backend ' + (online ? 'connected (MySQL)' : 'offline — using local demo data')); } return online; }
   function hydrate(d) {   // public catalogue always comes from MySQL
     if (!isOnline()) return;
-    [['schemes', '/schemes?includeInactive=1'], ['categories', '/categories?all=1'], ['documents', '/documents'], ['faqs', '/faqs']].forEach(function (p) {
+    [['schemes', '/schemes?includeInactive=1'], ['categories', '/categories?all=1'], ['documents', '/documents'], ['faqs', '/faqs?all=1']].forEach(function (p) {
       var r = http('GET', p[1]); if (r && r.status === 200 && Array.isArray(r.data) && r.data.length) d[p[0]] = r.data;
     });
   }
+  /* Admin only: pull queries, feedback and the user list from MySQL (these never come from the public endpoints). */
+  function hydrateAdmin(d) {
+    var s; try { s = JSON.parse(get(SESSION) || 'null'); } catch (e) { s = null; }
+    if (!s || s.role !== 'ADMIN' || !get(TOKEN) || !isOnline()) return;
+    var r = http('GET', '/admin/users');
+    if (r && r.status === 200 && Array.isArray(r.data)) d.users = d.users.filter(function (u) { return u.role !== 'USER'; }).concat(r.data.map(function (u) { return Object.assign({ email_notifications: false }, u, { created_at: String(u.created_at).slice(0, 10) }); }));
+    r = http('GET', '/admin/queries'); if (r && r.status === 200 && Array.isArray(r.data)) d.queries = r.data;
+    r = http('GET', '/admin/feedback'); if (r && r.status === 200 && Array.isArray(r.data)) d.feedback = r.data;
+  }
+  /* Synchronous call to the real API for admin writes. Returns null when offline / not logged in (caller falls back to local demo data). */
+  function remote(method, path, body) { return (get(TOKEN) && isOnline()) ? http(method, path, body) : null; }
+  function apiError(r) { return (r && r.data && r.data.error && r.data.error.message) || 'Request failed'; }
   function syncUser(d, uid) {   // pull this user's profile + saved + notifications from MySQL
     var r = http('GET', '/profiles/me'); if (r && r.status === 200 && r.data.profile) {
       var p = r.data.profile; d.profiles = d.profiles || {};
@@ -58,6 +73,7 @@ CC.store = (function () {
     if (raw) { try { mem = JSON.parse(raw); } catch (e) {} }
     if (!mem) mem = clone(CC.seed);
     hydrate(mem);
+    hydrateAdmin(mem);
     save();
     return mem;
   }
@@ -243,6 +259,7 @@ CC.store = (function () {
   function logQuery(text, source, schemeId) {
     text = String(text || '').trim().slice(0, 255); if (!text) return;
     var d = db(); var u = currentUser();
+    if (isOnline()) http('POST', '/chat/log', { query_text: text, source: source, scheme_id: schemeId || undefined }, true);   // so admins see it in MySQL
     var ex = d.queries.find(function (q) { return norm(q.query_text) === norm(text) && q.source === source; });
     if (ex) { ex.count = (ex.count || 1) + 1; ex.created_at = new Date().toISOString(); }
     else d.queries.unshift({ id: Date.now(), user_id: u ? u.id : null, query_text: text, source: source, scheme_id: schemeId || null,
@@ -258,7 +275,7 @@ CC.store = (function () {
   function upsert(listName, obj) {
     var d = db(); var list = d[listName];
     if (obj.id) { var i = list.findIndex(function (x) { return x.id == obj.id; }); if (i > -1) { list[i] = Object.assign(list[i], obj); save(); return list[i]; } }
-    obj.id = Math.max.apply(null, list.map(function (x) { return Number(x.id) || 0; }).concat([0])) + 1;
+    if (!obj.id) obj.id = Math.max.apply(null, list.map(function (x) { return Number(x.id) || 0; }).concat([0])) + 1;   // server-assigned ids are kept
     list.push(obj); save(); return obj;
   }
   function stats() {
@@ -279,7 +296,7 @@ CC.store = (function () {
     session: session, currentUser: currentUser, login: login, register: register, logout: logout,
     profile: profile, saveProfile: saveProfile, saved: saved, isSaved: isSaved, toggleSave: toggleSave,
     checklist: checklist, setChecklist: setChecklist, giveFeedback: giveFeedback, adminFeedback: adminFeedback, logQuery: logQuery,
-    notifications: notifications, markRead: markRead, upsert: upsert, stats: stats
+    notifications: notifications, markRead: markRead, upsert: upsert, stats: stats, remote: remote, apiError: apiError, isOnline: isOnline
   };
 })();
 

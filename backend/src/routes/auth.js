@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const crypto = require('node:crypto');
-const nodemailer = require('nodemailer');
+const mailer = require('../mailer');
 const bcrypt = require('bcryptjs');
 const pool = require('../db');
 const config = require('../config');
@@ -14,34 +14,13 @@ const hashToken = (token) => crypto.createHash('sha256').update(String(token)).d
 const buildResetLink = (token) => `${config.frontendUrl.replace(/\/$/, '')}/reset-password.html?token=${encodeURIComponent(token)}`;
 
 async function sendPasswordResetEmail(recipient, name, resetLink) {
-  const { host, port, secure, user, pass, from } = config.smtp;
-  if (!host || !user || !pass) {
-    console.warn(`[auth] SMTP not configured. Password reset link for ${recipient}: ${resetLink}`);
-    return;
-  }
-
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: !!secure,
-    auth: { user, pass }
+  const r = await mailer.sendMail({
+    to: recipient, subject: 'Reset your CivicConnect password',
+    text: `Reset your password: ${resetLink}\nThis link expires in ${config.passwordResetTtlMinutes} minutes.`,
+    html: mailer.layout({ heading: 'Reset your password', body: `<p>Hello ${mailer.esc(name || 'there')},</p><p>We received a request to reset the password for your CivicConnect account. If you didn’t request this, ignore this email. This link expires in ${config.passwordResetTtlMinutes} minutes.</p>`, cta: { label: 'Reset password', href: resetLink } })
   });
-
-  await transporter.sendMail({
-    from,
-    to: recipient,
-    subject: 'Reset your CivicConnect password',
-    html: `
-      <div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937;max-width:560px;margin:0 auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;background:#fff">
-        <h2 style="margin:0 0 12px;color:#3b2f2a;">Reset your password</h2>
-        <p>Hello ${name || 'there'},</p>
-        <p>We received a request to reset the password for your CivicConnect account.</p>
-        <p><a href="${resetLink}" style="display:inline-block;padding:12px 18px;background:#7a5b45;color:#fff;text-decoration:none;border-radius:8px;">Reset password</a></p>
-        <p>If you didn’t request this, you can safely ignore this email.</p>
-        <p style="font-size:12px;color:#6b7280;">This link expires in ${config.passwordResetTtlMinutes} minutes.</p>
-      </div>
-    `
-  });
+  if (!r.sent && mailer.isConfigured()) console.warn(`[auth] reset email to ${recipient} failed: ${r.reason}`);
+  if (!mailer.isConfigured()) console.warn(`[auth] SMTP not configured. Password reset link for ${recipient}: ${resetLink}`);
 }
 
 // POST /api/auth/register  — always creates a USER (admins are created by seeding / other admins)
@@ -101,7 +80,7 @@ router.post('/reset-password', wrap(async (req, res) => {
     FROM password_resets pr
     WHERE pr.token_hash = ?
       AND pr.used_at IS NULL
-      AND pr.expires_at > NOW()
+      AND pr.expires_at > UTC_TIMESTAMP()   -- expires_at is written in UTC (pool timezone Z); NOW() is the DB server local time
     ORDER BY pr.expires_at DESC
     LIMIT 1
   `, [tokenHash]);

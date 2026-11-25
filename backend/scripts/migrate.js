@@ -5,7 +5,7 @@ const mysql = require('mysql2/promise');
 const config = require('../src/config');
 
 (async () => {
-  if (config.isProd) { console.error('Refusing to run migrate (drops tables) with NODE_ENV=production'); process.exit(1); }
+  if (config.isProd && !process.env.ALLOW_INIT) { console.error('Refusing to run migrate (drops tables) with NODE_ENV=production'); process.exit(1); }
   const conn = await mysql.createConnection({ ...config.db, charset: 'utf8mb4', multipleStatements: true });
   const sql = fs.readFileSync(path.join(__dirname, '..', 'db', 'schema.sql'), 'utf8');
   await conn.query(sql);
