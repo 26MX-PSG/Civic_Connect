@@ -6,7 +6,7 @@
   function go(u) {
     if (u.role === 'ADMIN' && (!next || !/^admin\//.test(next))) return location.href = 'admin/index.html';
     if (next && !/^(https?:)?\/\//.test(next)) return location.href = next;
-    location.href = S.profile(u.id) ? 'dashboard.html' : 'profile.html';
+    location.href = 'dashboard.html';
   }
   if (S.currentUser() && !reason) go(S.currentUser());
   if (reason) U.$('#auth-reason').innerHTML = '<div class="warn-box mb-3"><i class="bi bi-info-circle" aria-hidden="true"></i><span>' +
@@ -68,7 +68,6 @@
       location.href = 'profile.html?welcome=1';
     }, 400);
   });
-  U.$('#forgot').addEventListener('click', function (e) { e.preventDefault(); U.toast(T('auth.forgotMsg', 'Password reset is handled by the backend (email link). Not available in this demo.')); });
   U.$$('[data-demo]').forEach(function (b) {
     b.addEventListener('click', function () {
       var admin = b.getAttribute('data-demo') === 'admin';

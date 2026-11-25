@@ -25,7 +25,7 @@ router.put('/me', requireAuth, wrap(async (req, res) => {
   const b = req.body;
   if (!b || typeof b !== 'object' || Array.isArray(b)) throw bad('Send the profile as a JSON object');
   const p = {
-    dob: v.date(b.dob, 'dob'),
+    dob: v.dob(b.dob, 'dob'),
     gender: v.oneOf(b.gender, C.gender, 'gender'),
     income: v.int(b.income, 'income', { min: 0, max: 100000000 }),
     occupation: v.oneOf(b.occupation, C.occupation, 'occupation'),

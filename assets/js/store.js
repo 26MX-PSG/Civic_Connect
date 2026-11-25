@@ -20,7 +20,10 @@ CC.store = (function () {
   /* ---------- real backend bridge (Express + MySQL) ----------
    * Synchronous XHR keeps the existing page code unchanged. If the API is unreachable
    * every call returns null and the store falls back to localStorage demo data. */
-  var API = (location.port === '3000') ? '/api' : 'http://localhost:3000/api';
+  // Same origin when the Express server serves the pages (localhost:3000 or any hosted https address).
+  // Only a static dev server (file://, Live Server on :5500 …) needs to reach the API on localhost:3000.
+  var devStatic = location.protocol === 'file:' || ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && location.port && location.port !== '3000');
+  var API = devStatic ? 'http://localhost:3000/api' : '/api';
   var TOKEN = 'cc_token';
   function http(method, path, body, async) {
     try {
@@ -37,10 +40,22 @@ CC.store = (function () {
   function isOnline() { if (online === null) { var r = http('GET', '/health'); online = !!(r && r.status === 200); if (window.console) console.info('[CivicConnect] backend ' + (online ? 'connected (MySQL)' : 'offline — using local demo data')); } return online; }
   function hydrate(d) {   // public catalogue always comes from MySQL
     if (!isOnline()) return;
-    [['schemes', '/schemes?includeInactive=1'], ['categories', '/categories?all=1'], ['documents', '/documents'], ['faqs', '/faqs']].forEach(function (p) {
+    [['schemes', '/schemes?includeInactive=1'], ['categories', '/categories?all=1'], ['documents', '/documents'], ['faqs', '/faqs?all=1']].forEach(function (p) {
       var r = http('GET', p[1]); if (r && r.status === 200 && Array.isArray(r.data) && r.data.length) d[p[0]] = r.data;
     });
   }
+  /* Admin only: pull queries, feedback and the user list from MySQL (these never come from the public endpoints). */
+  function hydrateAdmin(d) {
+    var s; try { s = JSON.parse(get(SESSION) || 'null'); } catch (e) { s = null; }
+    if (!s || s.role !== 'ADMIN' || !get(TOKEN) || !isOnline()) return;
+    var r = http('GET', '/admin/users');
+    if (r && r.status === 200 && Array.isArray(r.data)) d.users = d.users.filter(function (u) { return u.role !== 'USER'; }).concat(r.data.map(function (u) { return Object.assign({ email_notifications: false }, u, { created_at: String(u.created_at).slice(0, 10) }); }));
+    r = http('GET', '/admin/queries'); if (r && r.status === 200 && Array.isArray(r.data)) d.queries = r.data;
+    r = http('GET', '/admin/feedback'); if (r && r.status === 200 && Array.isArray(r.data)) d.feedback = r.data;
+  }
+  /* Synchronous call to the real API for admin writes. Returns null when offline / not logged in (caller falls back to local demo data). */
+  function remote(method, path, body) { return (get(TOKEN) && isOnline()) ? http(method, path, body) : null; }
+  function apiError(r) { return (r && r.data && r.data.error && r.data.error.message) || 'Request failed'; }
   function syncUser(d, uid) {   // pull this user's profile + saved + notifications from MySQL
     var r = http('GET', '/profiles/me'); if (r && r.status === 200 && r.data.profile) {
       var p = r.data.profile; d.profiles = d.profiles || {};
@@ -58,6 +73,7 @@ CC.store = (function () {
     if (raw) { try { mem = JSON.parse(raw); } catch (e) {} }
     if (!mem) mem = clone(CC.seed);
     hydrate(mem);
+    hydrateAdmin(mem);
     save();
     return mem;
   }
@@ -188,8 +204,21 @@ CC.store = (function () {
 
   /* ---------- profile ---------- */
   function profile(uid) { return (db().profiles || {})[uid] || null; }
-  function saveProfile(uid, p) { var d = db(); d.profiles = d.profiles || {}; d.profiles[uid] = p; save();
-    if (get(TOKEN)) http('PUT', '/profiles/me', p, true); }
+  function saveProfile(uid, p) {
+    if (p.dob) {
+      var parts = /^\d{4}-\d{2}-\d{2}$/.test(p.dob) ? p.dob.split('-').map(Number) : null;
+      var dob = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : null;
+      var valid = dob && dob.getFullYear() === parts[0] && dob.getMonth() === parts[1] - 1 && dob.getDate() === parts[2];
+      if (!valid) throw new Error('Enter a valid date of birth.');
+      var today = new Date();
+      if (dob > today) throw new Error('Date of birth cannot be in the future.');
+      var age = today.getFullYear() - dob.getFullYear();
+      if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) age--;
+      if (age < 18) throw new Error('You must be at least 18 years old to apply for this scheme.');
+    }
+    var d = db(); d.profiles = d.profiles || {}; d.profiles[uid] = p; save();
+    if (get(TOKEN)) http('PUT', '/profiles/me', p, true);
+  }
 
   /* ---------- saved ---------- */
   function saved(uid) { return ((db().saved || {})[uid] || []).slice(); }
@@ -212,20 +241,28 @@ CC.store = (function () {
   function giveFeedback(sid, useful, comment) {
     var d = db(); var f = d.feedback.find(function (x) { return x.scheme_id == sid; });
     if (!f) { f = { scheme_id: Number(sid), yes: 0, no: 0, comments: [] }; d.feedback.push(f); }
-    var voteKey = 'cc_vote_' + (currentUser() ? currentUser().id : 'guest') + '_' + sid;
+    var u = currentUser();
+    var voteKey = 'cc_vote_' + (u ? u.id : 'guest') + '_' + sid;
     var prev = get(voteKey);
     if (prev === 'yes') f.yes--; if (prev === 'no') f.no--;
     if (useful) f.yes++; else f.no++;
     set(voteKey, useful ? 'yes' : 'no');
-    if (comment) f.comments.push(String(comment).slice(0, 200));
+    if (comment) f.comments.push(String(comment).slice(0, 2000));
     save();
-    if (get(TOKEN)) http('PUT', '/feedback/' + sid, { useful: !!useful, comment: comment ? String(comment).slice(0, 200) : undefined }, true);
+    if (get(TOKEN) && u) http('PUT', '/feedback/' + sid, { useful: !!useful, comment: comment ? String(comment).slice(0, 2000) : '' }, true);
+  }
+
+  function adminFeedback(schemeId) {
+    if (!get(TOKEN)) return [];
+    var r = http('GET', '/admin/feedback' + (schemeId ? '?schemeId=' + encodeURIComponent(schemeId) : ''));
+    return r && r.status === 200 && Array.isArray(r.data) ? r.data : null;
   }
 
   /* ---------- unanswered queries (search + chatbots) ---------- */
   function logQuery(text, source, schemeId) {
     text = String(text || '').trim().slice(0, 255); if (!text) return;
     var d = db(); var u = currentUser();
+    if (isOnline()) http('POST', '/chat/log', { query_text: text, source: source, scheme_id: schemeId || undefined }, true);   // so admins see it in MySQL
     var ex = d.queries.find(function (q) { return norm(q.query_text) === norm(text) && q.source === source; });
     if (ex) { ex.count = (ex.count || 1) + 1; ex.created_at = new Date().toISOString(); }
     else d.queries.unshift({ id: Date.now(), user_id: u ? u.id : null, query_text: text, source: source, scheme_id: schemeId || null,
@@ -241,7 +278,7 @@ CC.store = (function () {
   function upsert(listName, obj) {
     var d = db(); var list = d[listName];
     if (obj.id) { var i = list.findIndex(function (x) { return x.id == obj.id; }); if (i > -1) { list[i] = Object.assign(list[i], obj); save(); return list[i]; } }
-    obj.id = Math.max.apply(null, list.map(function (x) { return Number(x.id) || 0; }).concat([0])) + 1;
+    if (!obj.id) obj.id = Math.max.apply(null, list.map(function (x) { return Number(x.id) || 0; }).concat([0])) + 1;   // server-assigned ids are kept
     list.push(obj); save(); return obj;
   }
   function stats() {
@@ -261,8 +298,8 @@ CC.store = (function () {
     categories: categories, category: category, schemes: schemes, scheme: scheme, doc: doc, faqs: faqs,
     session: session, currentUser: currentUser, login: login, register: register, logout: logout,
     profile: profile, saveProfile: saveProfile, saved: saved, isSaved: isSaved, toggleSave: toggleSave,
-    checklist: checklist, setChecklist: setChecklist, giveFeedback: giveFeedback, logQuery: logQuery,
-    notifications: notifications, markRead: markRead, upsert: upsert, stats: stats
+    checklist: checklist, setChecklist: setChecklist, giveFeedback: giveFeedback, adminFeedback: adminFeedback, logQuery: logQuery,
+    notifications: notifications, markRead: markRead, upsert: upsert, stats: stats, remote: remote, apiError: apiError, isOnline: isOnline
   };
 })();
 

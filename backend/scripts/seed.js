@@ -14,25 +14,32 @@ function loadSeed() {
   vm.runInContext(fs.readFileSync(file, 'utf8'), sandbox, { filename: file });
   return sandbox.window.CC.seed;
 }
+// Production first-boot (init-db.js): the admin gets ADMIN_PASSWORD; seeded demo citizens get random passwords
+// (they can use "Forgot password"), unless SEED_DEMO_PASSWORDS=true keeps the known demo ones.
+const crypto = require('crypto');
+function passwordFor(u) {
+  if (!config.isProd || process.env.SEED_DEMO_PASSWORDS === 'true') return u.password;
+  return u.role === 'ADMIN' ? process.env.ADMIN_PASSWORD : crypto.randomBytes(18).toString('hex');
+}
 const ts = (iso) => (iso ? String(iso).replace('T', ' ').slice(0, 19) : null);
 const json = (v) => (v == null ? null : JSON.stringify(v));
 
 (async () => {
-  if (config.isProd) { console.error('Refusing to seed with NODE_ENV=production'); process.exit(1); }
+  if (config.isProd && !process.env.ALLOW_INIT) { console.error('Refusing to seed with NODE_ENV=production'); process.exit(1); }
   const seed = loadSeed();
   const conn = await mysql.createConnection({ ...config.db, charset: 'utf8mb4', multipleStatements: true });
   await conn.beginTransaction();
   try {
     await conn.query('SET FOREIGN_KEY_CHECKS = 0');
     for (const t of ['notifications', 'feedback', 'search_queries', 'saved_schemes', 'profiles', 'scheme_documents',
-      'scheme_criteria', 'scheme_aliases', 'schemes', 'documents', 'faqs', 'categories', 'users']) {
+      'password_resets', 'scheme_criteria', 'scheme_aliases', 'schemes', 'documents', 'faqs', 'categories', 'users']) {
       await conn.query('TRUNCATE TABLE ' + t);
     }
     await conn.query('SET FOREIGN_KEY_CHECKS = 1');
 
     for (const u of seed.users) {
       await conn.query('INSERT INTO users (user_id,name,email,password_hash,role,preferred_language,email_notifications,is_active,created_at) VALUES (?,?,?,?,?,?,?,?,?)',
-        [u.id, u.name, u.email, bcrypt.hashSync(u.password, 10), u.role, u.preferred_language || 'EN', !!u.email_notifications, u.is_active !== false, u.created_at]);
+        [u.id, u.name, u.email, bcrypt.hashSync(passwordFor(u), 10), u.role, u.preferred_language || 'EN', !!u.email_notifications, u.is_active !== false, u.created_at]);
     }
     for (const c of seed.categories) {
       await conn.query('INSERT INTO categories (category_id,slug,icon,name_en,name_ta,description,is_active) VALUES (?,?,?,?,?,?,?)',

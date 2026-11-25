@@ -1,6 +1,6 @@
 -- CivicConnect MySQL schema (DESIGN.md section 7). Safe to re-run: drops and recreates all tables.
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS notifications, feedback, search_queries, saved_schemes, profiles,
+DROP TABLE IF EXISTS password_resets, notifications, feedback, search_queries, saved_schemes, profiles,
   scheme_documents, scheme_criteria, scheme_aliases, schemes, documents, faqs, categories, users;
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -14,6 +14,19 @@ CREATE TABLE users (
   email_notifications BOOLEAN NOT NULL DEFAULT FALSE,
   is_active           BOOLEAN NOT NULL DEFAULT TRUE,
   created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE password_resets (
+  reset_id     INT PRIMARY KEY AUTO_INCREMENT,
+  user_id      INT NOT NULL,
+  token_hash   CHAR(64) NOT NULL,
+  expires_at   DATETIME NOT NULL,
+  used_at      DATETIME NULL,
+  created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_password_reset_token (token_hash),
+  KEY idx_password_resets_user (user_id),
+  KEY idx_password_resets_expiry (expires_at),
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE categories (
@@ -151,7 +164,7 @@ CREATE TABLE feedback (
   scheme_id   INT NOT NULL,
   user_id     INT NULL,
   useful      BOOLEAN NOT NULL,
-  comment     VARCHAR(200) NULL,
+  comment     VARCHAR(2000) NULL,
   created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_feedback_user_scheme (scheme_id, user_id),
   FOREIGN KEY (scheme_id) REFERENCES schemes(scheme_id) ON DELETE CASCADE,

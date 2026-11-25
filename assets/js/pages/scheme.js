@@ -46,8 +46,8 @@
         '<div class="tab-pane fade show active" id="p-overview" role="tabpanel" aria-labelledby="tab-overview"><h2 class="h4">' + U.esc(T('detail.whoFor', 'Who it is for')) + '</h2><p>' + U.esc(s.who_en) + '</p><h2 class="h4 mt-4">' + U.esc(T('detail.benefits', 'Benefits')) + '</h2><ul>' + s.benefits_en.map(function (b) { return '<li class="mb-1">' + U.esc(b) + '</li>'; }).join('') + '</ul>' + (ta ? '<p class="small text-muted">(இந்தப் பகுதி தற்போது ஆங்கிலத்தில் மட்டும் உள்ளது)</p>' : '') + '</div>' +
         '<div class="tab-pane fade" id="p-criteria" role="tabpanel" aria-labelledby="tab-criteria"><h2 class="h4">' + U.esc(T('tab.criteria', 'Basic criteria')) + '</h2>' +
           (res ? '<p class="small text-muted">' + U.esc(T('crit.compared', 'Compared with your profile:')) + ' ' + U.matchBadge(res.status) + (res.status === 'NONE' ? '<span class="badge-cc b-cat">' + U.esc(T('crit.noMatch', 'Basic criteria not met')) + '</span>' : '') + '</p>'
-               : '<p class="small text-muted">' + (u ? '<a href="profile.html">' + U.esc(T('crit.addProfile', 'Complete your profile')) + '</a> ' + U.esc(T('crit.toCompare', 'to compare your details.')) : '<a href="login.html?next=' + encodeURIComponent('scheme.html?slug=' + s.slug + '#criteria') + '">' + U.esc(T('nav.login', 'Log in')) + '</a> ' + U.esc(T('crit.toCompare', 'to compare your details.'))) + '</p>') +
-          critHtml + (res && res.missing.length ? '<a class="btn btn-sm btn-outline-primary mt-3" href="profile.html#f-' + res.missing[0] + '">' + U.esc(T('crit.addMissing', 'Add missing details')) + '</a>' : '') + '</div>' +
+               : '<p class="small text-muted">' + (u ? '<a href="matching.html">' + U.esc(T('crit.addProfile', 'Complete your profile')) + '</a> ' + U.esc(T('crit.toCompare', 'to compare your details.')) : '<a href="login.html?next=' + encodeURIComponent('scheme.html?slug=' + s.slug + '#criteria') + '">' + U.esc(T('nav.login', 'Log in')) + '</a> ' + U.esc(T('crit.toCompare', 'to compare your details.'))) + '</p>') +
+          critHtml + (res && res.missing.length ? '<a class="btn btn-sm btn-outline-primary mt-3" href="matching.html#f-' + res.missing[0] + '">' + U.esc(T('crit.addMissing', 'Add missing details')) + '</a>' : '') + '</div>' +
         '<div class="tab-pane fade" id="p-documents" role="tabpanel" aria-labelledby="tab-documents"><div id="print-area"><h2 class="h4">' + U.esc(T('docs.h', 'Document checklist')) + '</h2><p class="small text-muted">' + U.esc(T('docs.p', 'Tick what you already have. This is saved only in your browser — nothing is uploaded.')) + '</p>' +
           '<div class="d-flex justify-content-between small fw-semibold mb-1"><span id="doc-prog-label"></span></div><div class="progress mb-3" role="progressbar" aria-label="' + U.esc(T('docs.progress', 'Documents ready')) + '" aria-valuemin="0" aria-valuemax="' + docs.length + '" id="doc-prog"><div class="progress-bar"></div></div>' +
           docs.map(function (d) { return '<div class="doc-row" id="doc-' + d.id + '"><input class="form-check-input mt-1" type="checkbox" id="ck-' + d.id + '" value="' + d.id + '"' + (ticked.indexOf(d.id) > -1 ? ' checked' : '') + '><div class="flex-grow-1"><label for="ck-' + d.id + '">' + U.esc(U.dName(d)) + '</label> ' + (d.mandatory ? '<span class="badge-cc b-cat">' + U.esc(T('docs.required', 'Required')) + '</span>' : '<span class="badge-cc b-state">' + U.esc(T('docs.optional', 'If applicable')) + '</span>') +
@@ -76,7 +76,24 @@
   });
   // portal (leaving notice)
   var lm = new bootstrap.Modal(U.$('#leave-modal'));
-  U.$('#portal-btn').addEventListener('click', function () { U.$('#leave-go').href = s.official_url; U.$('#leave-url').textContent = s.official_url; lm.show(); });
+  function completed18(dob) {
+    if (!dob) return null;
+    var parts = dob.split('-').map(Number);
+    if (parts.length !== 3) return null;
+    var birth = new Date(parts[0], parts[1] - 1, parts[2]);
+    if (birth.getFullYear() !== parts[0] || birth.getMonth() !== parts[1] - 1 || birth.getDate() !== parts[2]) return null;
+    var today = new Date();
+    var age = today.getFullYear() - birth.getFullYear();
+    if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+    return age >= 18;
+  }
+  U.$('#portal-btn').addEventListener('click', function () {
+    if (u && prof && completed18(prof.dob) === false) {
+      U.toast(T('profile.dobUnder18', 'You must be at least 18 years old to apply for this scheme.'), 'error');
+      return;
+    }
+    U.$('#leave-go').href = s.official_url; U.$('#leave-url').textContent = s.official_url; lm.show();
+  });
   U.$('#leave-go').addEventListener('click', function () { lm.hide(); });
   // checklist
   function prog() {
@@ -93,17 +110,33 @@
   U.$$('.cc-tabs [data-bs-toggle=tab]').forEach(function (b) { b.addEventListener('shown.bs.tab', function () { history.replaceState(null, '', '#' + b.id.replace('tab-', '')); }); });
   // scheme assistant
   CC.bot.mount(U.$('#scheme-bot'), { scope: 'scheme', scheme: s });
-  // feedback (state A)
+  // feedback
   var fb = U.$('#feedback');
   function fbAsk() {
-    fb.innerHTML = '<div class="d-flex flex-wrap align-items-center gap-3"><h2 id="fb-h" class="h5 mb-0">' + U.esc(T('fb.q', 'Was this information useful?')) + '</h2><div class="d-flex gap-2"><button class="btn btn-outline-primary" data-fb="1"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i>' + U.esc(T('common.yes', 'Yes')) + '</button><button class="btn btn-outline-primary" data-fb="0"><i class="bi bi-hand-thumbs-down" aria-hidden="true"></i>' + U.esc(T('common.no', 'No')) + '</button></div></div>';
-    U.$$('[data-fb]', fb).forEach(function (b) { b.addEventListener('click', function () {
-      if (b.getAttribute('data-fb') === '1') { S.giveFeedback(s.id, true); thanks(); return; }
-      fb.innerHTML = '<form id="fb-form"><h2 id="fb-h" class="h5">' + U.esc(T('fb.what', 'What was missing or unclear?')) + ' <span class="text-muted small fw-normal">(' + U.esc(T('fb.optional', 'optional')) + ')</span></h2><label class="visually-hidden" for="fb-t">' + U.esc(T('fb.what', 'What was missing or unclear?')) + '</label><textarea id="fb-t" class="form-control mb-1" rows="3" maxlength="200"></textarea><div class="form-text mb-2"><span id="fb-n">0</span>/200</div><button class="btn btn-primary">' + U.esc(T('fb.submit', 'Submit feedback')) + '</button></form>';
-      U.$('#fb-t').addEventListener('input', function () { U.$('#fb-n').textContent = this.value.length; }); U.$('#fb-t').focus();
-      U.$('#fb-form').addEventListener('submit', function (e) { e.preventDefault(); S.giveFeedback(s.id, false, U.$('#fb-t').value.trim()); thanks(); });
-    }); });
+    fb.innerHTML = '<form id="fb-form"><h2 id="fb-h" class="h5">' + U.esc(T('fb.q', 'Was this information useful?')) + '</h2>' +
+      '<div class="choice-group mb-3" role="radiogroup" aria-label="' + U.esc(T('fb.q', 'Was this information useful?')) + '">' +
+      '<input type="radio" name="feedback-useful" id="fb-yes" value="yes"><label for="fb-yes"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i> ' + U.esc(T('common.yes', 'Yes')) + '</label>' +
+      '<input type="radio" name="feedback-useful" id="fb-no" value="no"><label for="fb-no"><i class="bi bi-hand-thumbs-down" aria-hidden="true"></i> ' + U.esc(T('common.no', 'No')) + '</label></div>' +
+      '<div class="mb-2"><label class="form-label" for="fb-t">' + U.esc(T('fb.details', 'Detailed feedback')) + '</label>' +
+      '<textarea id="fb-t" class="form-control" rows="4" maxlength="2000" placeholder="' + U.esc(T('fb.placeholder', 'Share your suggestions or tell us how we can improve...')) + '"></textarea>' +
+      '<div class="form-text text-end"><span id="fb-n">0</span>/2000</div></div>' +
+      '<button type="submit" class="btn btn-primary"><i class="bi bi-send" aria-hidden="true"></i> ' + U.esc(T('fb.submit', 'Submit Feedback')) + '</button></form>'; 
+
+    U.$('#fb-t').addEventListener('input', function () { U.$('#fb-n').textContent = this.value.length; });
+    U.$('#fb-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!u) { location.href = 'login.html?reason=feedback&next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search); return; }
+      var choice = U.$('input[name="feedback-useful"]:checked');
+      if (!choice) { U.toast(T('fb.choose', 'Please choose Yes or No.'), 'error'); U.$('#fb-yes').focus(); return; }
+      var comment = U.$('#fb-t').value.trim();
+      if (comment.length > 2000) return;
+      S.giveFeedback(s.id, choice.value === 'yes', comment);
+      thanks();
+    });
   }
-  function thanks() { fb.innerHTML = '<div class="ok-box" role="status"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><div><strong id="fb-h">' + U.esc(T('fb.thanks', 'Thank you — this helps us improve.')) + '</strong> <button class="btn btn-link p-0 align-baseline" style="min-height:0" id="fb-change">' + U.esc(T('fb.change', 'Change answer')) + '</button></div></div>'; U.$('#fb-change').onclick = fbAsk; }
+  function thanks() {
+    fb.innerHTML = '<div class="ok-box" role="status"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><div><strong id="fb-h">' + U.esc(T('fb.thanks', 'Thank you — this helps us improve.')) + '</strong> <button type="button" class="btn btn-link p-0 align-baseline" style="min-height:0" id="fb-change">' + U.esc(T('fb.change', 'Change answer')) + '</button></div></div>'; 
+    U.$('#fb-change').onclick = fbAsk;
+  }
   fbAsk();
 })();

@@ -27,10 +27,27 @@ const id = (v, name = 'id') => {
 };
 const date = (v, name) => {
   if (v === undefined || v === null || v === '') return null;
-  if (typeof v !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(v) || Number.isNaN(Date.parse(v))) throw bad(name + ' must be a date like 2005-06-14');
-  const d = new Date(v);
-  if (d > new Date()) throw bad(name + ' cannot be in the future');
-  if (d.getFullYear() < 1900) throw bad(name + ' is not a valid date');
+  if (typeof v !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(v)) throw bad(name + ' must be a date like 2005-06-14');
+
+  const [year, month, day] = v.split('-').map(Number);
+  const dob = new Date(year, month - 1, day);
+  const validDate = dob.getFullYear() === year && dob.getMonth() === month - 1 && dob.getDate() === day;
+  if (!validDate) throw bad(name + ' must be a valid date');
+
+  const today = new Date();
+  if (dob > today) throw bad(name + ' cannot be in the future');
+  if (year < 1900) throw bad(name + ' is not a valid date');
+
+  return v;
+};
+const dob = (v, name) => {
+  if (date(v, name) === null) return null;
+  const [year, month, day] = v.split('-').map(Number);
+  const today = new Date();
+  let age = today.getFullYear() - year;
+  if (today.getMonth() < month - 1 || (today.getMonth() === month - 1 && today.getDate() < day)) age--;
+  if (age < 18) throw bad('You must be at least 18 years old to apply for this scheme');
+
   return v;
 };
 const email = (v) => {
@@ -39,4 +56,4 @@ const email = (v) => {
   return t;
 };
 
-module.exports = { str, oneOf, int, id, date, email };
+module.exports = { str, oneOf, int, id, date, dob, email };

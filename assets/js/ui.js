@@ -53,7 +53,7 @@ CC.ui = (function () {
     if (opts.result) {
       extra = '<div>' + matchBadge(opts.result.status) + '</div>';
       if (opts.result.reasons.length) extra += '<div class="why"><span class="small text-muted me-1">' + esc(T('rec.why', 'Why this matched')) + ':</span>' + opts.result.reasons.map(function (r) { return '<span class="chip chip-reason"><i class="bi bi-check2" aria-hidden="true"></i>' + esc(ta() && r.label_ta ? r.label_ta : r.label_en) + '</span>'; }).join('') + '</div>';
-      if (opts.result.missing.length) extra += '<div class="why"><span class="small text-muted me-1">' + esc(T('rec.missing', 'Missing info')) + ':</span>' + opts.result.missing.map(function (m) { return '<a class="chip chip-missing" href="' + base + 'profile.html#f-' + m + '"><i class="bi bi-plus" aria-hidden="true"></i>' + esc(T('field.' + m, m)) + '</a>'; }).join('') + '</div>';
+      if (opts.result.missing.length) extra += '<div class="why"><span class="small text-muted me-1">' + esc(T('rec.missing', 'Missing info')) + ':</span>' + opts.result.missing.map(function (m) { return '<a class="chip chip-missing" href="' + base + 'matching.html#f-' + m + '"><i class="bi bi-plus" aria-hidden="true"></i>' + esc(T('field.' + m, m)) + '</a>'; }).join('') + '</div>';
     }
     if (opts.progress) extra += '<div><div class="d-flex justify-content-between small mb-1"><span>' + esc(T('docs.progress', 'Documents ready')) + '</span><span>' + opts.progress.done + ' / ' + opts.progress.total + '</span></div><div class="progress" role="progressbar" aria-valuenow="' + opts.progress.done + '" aria-valuemin="0" aria-valuemax="' + opts.progress.total + '" aria-label="' + esc(T('docs.progress', 'Documents ready')) + '"><div class="progress-bar" style="width:' + (opts.progress.total ? opts.progress.done * 100 / opts.progress.total : 0) + '%"></div></div></div>';
     var sUrl = base + 'scheme.html?slug=' + encodeURIComponent(s.slug);
@@ -137,13 +137,11 @@ CC.ui = (function () {
   function citizenHeader() {
     var u = CC.store.currentUser();
     var links = [['home', 'index.html', 'house', T('nav.home', 'Home')], ['discover', 'schemes.html', 'search', T('nav.discover', 'Discover')], ['categories', 'categories.html', 'grid', T('nav.categories', 'Categories')],
-      ['saved', 'saved.html', 'bookmark', T('nav.saved', 'Saved')], ['help', 'help.html', 'question-circle', T('nav.help', 'Help')]];
+      ['matching', 'matching.html', 'stars', T('nav.match', 'Profile Matching')], ['saved', 'saved.html', 'bookmark', T('nav.saved', 'Saved')], ['help', 'help.html', 'question-circle', T('nav.help', 'Help')]];
     var acct = u ? '<div class="dropdown"><button class="account-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><span class="avatar">' + esc(initials(u.name)) + '</span><span class="d-none d-md-inline">' + esc(u.name.split(' ')[0]) + '</span></button>' +
       '<ul class="dropdown-menu dropdown-menu-end">' +
       (u.role === 'ADMIN' ? '<li><a class="dropdown-item" href="' + base + 'admin/index.html"><i class="bi bi-speedometer2"></i>' + esc(T('nav.admin', 'Admin dashboard')) + '</a></li>' : '') +
       '<li><a class="dropdown-item" href="' + base + 'dashboard.html"><i class="bi bi-grid-1x2"></i>' + esc(T('nav.dashboard', 'My dashboard')) + '</a></li>' +
-      '<li><a class="dropdown-item" href="' + base + 'recommendations.html"><i class="bi bi-stars"></i>' + esc(T('nav.recs', 'My matches')) + '</a></li>' +
-      '<li><a class="dropdown-item" href="' + base + 'profile.html"><i class="bi bi-person"></i>' + esc(T('nav.profile', 'Profile')) + '</a></li>' +
       '<li><hr class="dropdown-divider"></li><li><button class="dropdown-item" data-logout><i class="bi bi-box-arrow-right"></i>' + esc(T('nav.logout', 'Log out')) + '</button></li></ul></div>'
       : '<a class="btn btn-primary" href="' + base + 'login.html"><i class="bi bi-person-circle" aria-hidden="true"></i><span>' + esc(T('nav.login', 'Log in')) + '</span></a>';
     return '<a class="skip-link" href="#main">' + esc(T('common.skip', 'Skip to content')) + '</a>' +
@@ -156,16 +154,16 @@ CC.ui = (function () {
   function bottomNav() {
     var u = CC.store.currentUser();
     var items = [['home', 'index.html', 'house', T('nav.home', 'Home')], ['discover', 'schemes.html', 'search', T('nav.discover', 'Discover')], ['saved', 'saved.html', 'bookmark', T('nav.saved', 'Saved')],
-      u ? ['profile', 'profile.html', 'person', T('nav.profile', 'Profile')] : ['login', 'login.html', 'person', T('nav.login', 'Log in')]];
+      u ? ['matching', 'matching.html', 'stars', T('nav.match', 'Matching')] : ['login', 'login.html', 'person', T('nav.login', 'Log in')]];
     return '<nav class="bottom-nav d-md-none" aria-label="' + esc(T('nav.mobile', 'Quick navigation')) + '">' + items.map(function (i) {
-      var act = page === i[0] || (i[0] === 'profile' && (page === 'dashboard' || page === 'recommendations'));
+      var act = page === i[0] || (i[0] === 'matching' && page === 'dashboard');
       return '<a href="' + base + i[1] + '"' + (act ? ' class="active" aria-current="page"' : '') + '><i class="bi bi-' + i[2] + (act ? '-fill' : '') + '" aria-hidden="true"></i>' + esc(i[3]) + '</a>';
     }).join('') + '</nav>';
   }
   function footer() {
     return '<footer class="site-footer"><div class="container"><div class="row g-4">' +
       '<div class="col-md-5"><a class="brand mb-2" style="color:#fff" href="' + base + 'index.html"><span class="brand-mark" aria-hidden="true">CC</span><span>CivicConnect</span></a><p class="mb-0">' + esc(T('footer.about', 'A bilingual guide to 15 selected government schemes. We help you understand and prepare — you apply on the official portal.')) + '</p></div>' +
-      '<div class="col-6 col-md-3"><h2>' + esc(T('footer.explore', 'Explore')) + '</h2><ul class="list-unstyled d-grid gap-2"><li><a href="' + base + 'schemes.html">' + esc(T('footer.all', 'All 15 schemes')) + '</a></li><li><a href="' + base + 'categories.html">' + esc(T('nav.categories', 'Categories')) + '</a></li><li><a href="' + base + 'recommendations.html">' + esc(T('nav.recs', 'My matches')) + '</a></li></ul></div>' +
+      '<div class="col-6 col-md-3"><h2>' + esc(T('footer.explore', 'Explore')) + '</h2><ul class="list-unstyled d-grid gap-2"><li><a href="' + base + 'schemes.html">' + esc(T('footer.all', 'All 15 schemes')) + '</a></li><li><a href="' + base + 'categories.html">' + esc(T('nav.categories', 'Categories')) + '</a></li><li><a href="' + base + 'matching.html#results">' + esc(T('nav.recs', 'My matches')) + '</a></li></ul></div>' +
       '<div class="col-6 col-md-4"><h2>' + esc(T('footer.support', 'Support')) + '</h2><ul class="list-unstyled d-grid gap-2"><li><a href="' + base + 'help.html">' + esc(T('nav.helpfaq', 'Help & FAQs')) + '</a></li><li><a href="' + base + 'help.html#doc-guide">' + esc(T('help.docGuide', 'Document guide')) + '</a></li><li><button type="button" class="btn btn-link p-0 text-white text-decoration-none" data-open-bot style="min-height:0">' + esc(T('bot.fab', 'Ask CivicConnect')) + '</button></li></ul></div></div>' +
       '<p class="disclaimer mb-0">' + esc(T('footer.disclaimer', 'CivicConnect is not a government website and does not accept applications. Matching is guidance only, not an official eligibility decision.')) + '</p></div></footer>';
   }
