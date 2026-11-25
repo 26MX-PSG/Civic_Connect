@@ -52,6 +52,8 @@ router.get('/feedback', wrap(async (req, res) => {
     comment: f.comment,
     created_at: f.created_at
   })));
+}));
+
 router.patch('/users/:id', wrap(async (req, res) => {
   const id = v.id(req.params.id);
   if (typeof (req.body || {}).is_active !== 'boolean') throw bad('is_active must be true or false');
@@ -272,7 +274,7 @@ router.patch('/queries/:id', wrap(async (req, res) => {
 }));
 
 /* ---------- feedback per scheme (admin sees comments; the public API does not) ---------- */
-router.get('/feedback', wrap(async (req, res) => {
+router.get('/feedback/summary', wrap(async (req, res) => {
   const [rows] = await pool.query(`SELECT s.scheme_id, s.name_en, COALESCE(SUM(f.useful),0) yes, COALESCE(SUM(NOT f.useful),0) no FROM schemes s LEFT JOIN feedback f ON f.scheme_id=s.scheme_id GROUP BY s.scheme_id, s.name_en ORDER BY s.scheme_id`);
   const [comments] = await pool.query('SELECT scheme_id, comment FROM feedback WHERE comment IS NOT NULL AND comment<>"" ORDER BY created_at, feedback_id');
   res.json(rows.map((r) => ({ scheme_id: r.scheme_id, name_en: r.name_en, yes: Number(r.yes), no: Number(r.no), comments: comments.filter((c) => c.scheme_id === r.scheme_id).map((c) => c.comment) })));
