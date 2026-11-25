@@ -196,6 +196,11 @@ test('feedback: one vote per user, replaceable', async () => {
   assert.equal(r.json.yes, before.yes); assert.equal(r.json.no, before.no + 1, 'vote replaced, not added');
   r = await call('PUT', '/api/feedback/1', { token: tok.user, body: { useful: 'yes' } }); assert.equal(r.status, 400);
   r = await call('PUT', '/api/feedback/999', { token: tok.user, body: { useful: true } }); assert.equal(r.status, 404);
+
+  r = await call('PUT', '/api/feedback/1', { token: tok.user, body: { useful: true, comment: 'Detailed feedback for database testing' } }); assert.equal(r.status, 200);
+  r = await call('GET', '/api/admin/feedback?schemeId=1', { token: tok.user }); assert.equal(r.status, 403);
+  r = await call('GET', '/api/admin/feedback?schemeId=1', { token: tok.admin }); assert.equal(r.status, 200);
+  assert.ok(r.json.some((f) => f.user_id !== null && f.comment === 'Detailed feedback for database testing'));
 });
 
 test('notifications: own only, mark read', async () => {

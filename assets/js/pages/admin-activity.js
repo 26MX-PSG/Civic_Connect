@@ -27,10 +27,32 @@
   }
   function badge() { var n = d.queries.filter(function (q) { return q.review_status === 'NEW'; }).length; U.$('#q-badge').textContent = n ? n + ' ' + T('aa.st.new', 'New') : ''; }
   function drawF() {
-    U.$('#f-rows').innerHTML = d.schemes.map(function (s) {
-      var f = d.feedback.find(function (x) { return x.scheme_id === s.id; }) || { yes: 0, no: 0, comments: [] }, n = f.yes + f.no, pct = n ? Math.round(f.yes * 100 / n) : null;
-      return '<tr><td class="fw-semibold">' + U.esc(s.name_en) + '</td><td>' + f.yes + '</td><td>' + f.no + '</td><td>' + (pct === null ? '—' : '<span class="badge-cc ' + (pct >= 80 ? 'b-active' : 'b-overdue') + '">' + pct + '%</span>') + '</td><td class="small">' + (f.comments.length ? f.comments.map(function (c) { return '<div>“' + U.esc(c) + '”</div>'; }).join('') : '<span class="text-muted">—</span>') + '</td></tr>';
-    }).join('');
+    var filter = U.$('#f-scheme-filter');
+    if (filter && !filter.dataset.ready) {
+      filter.innerHTML = '<option value="">All schemes</option>' + d.schemes.map(function (s) { return '<option value="' + s.id + '">' + U.esc(s.name_en) + '</option>'; }).join('');
+      filter.dataset.ready = '1';
+      filter.onchange = drawF;
+    }
+
+    var selected = filter ? filter.value : '';
+    var rows = S.adminFeedback(selected);
+
+    if (rows === null) {
+      U.$('#f-rows').innerHTML = '<tr><td colspan="5">' + U.empty('exclamation-triangle', 'Unable to load feedback', 'Database feedback could not be loaded. Make sure the backend is running.') + '</td></tr>';
+      return;
+    }
+
+    U.$('#f-rows').innerHTML = rows.length ? rows.map(function (f) {
+      var person = f.user_name ? U.esc(f.user_name) : 'User #' + U.esc(f.user_id || '—');
+      var email = f.user_email ? '<div class="small text-muted">' + U.esc(f.user_email) + '</div>' : '';
+      var response = f.useful
+        ? '<span class="badge-cc b-active"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i> Yes</span>'
+        : '<span class="badge-cc b-overdue"><i class="bi bi-hand-thumbs-down" aria-hidden="true"></i> No</span>';
+      return '<tr><td class="fw-semibold">' + person + email + '</td>' +
+        '<td>' + U.esc(f.scheme_name) + '</td><td>' + response + '</td>' +
+        '<td style="min-width:220px">' + (f.comment ? U.esc(f.comment) : '<span class="text-muted">—</span>') + '</td>' +
+        '<td class="small text-nowrap">' + U.esc(U.date(f.created_at)) + '<div class="text-muted">' + U.esc(new Date(f.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) + '</div></td></tr>';
+    }).join('') : '<tr><td colspan="5">' + U.empty('chat-square-text', 'No feedback submitted', 'No user feedback matches this filter.') + '</td></tr>';
   }
   function drawU() {
     U.$('#u-rows').innerHTML = d.users.filter(function (x) { return x.role === 'USER'; }).map(function (x) {

@@ -238,14 +238,21 @@ CC.store = (function () {
   function giveFeedback(sid, useful, comment) {
     var d = db(); var f = d.feedback.find(function (x) { return x.scheme_id == sid; });
     if (!f) { f = { scheme_id: Number(sid), yes: 0, no: 0, comments: [] }; d.feedback.push(f); }
-    var voteKey = 'cc_vote_' + (currentUser() ? currentUser().id : 'guest') + '_' + sid;
+    var u = currentUser();
+    var voteKey = 'cc_vote_' + (u ? u.id : 'guest') + '_' + sid;
     var prev = get(voteKey);
     if (prev === 'yes') f.yes--; if (prev === 'no') f.no--;
     if (useful) f.yes++; else f.no++;
     set(voteKey, useful ? 'yes' : 'no');
-    if (comment) f.comments.push(String(comment).slice(0, 200));
+    if (comment) f.comments.push(String(comment).slice(0, 2000));
     save();
-    if (get(TOKEN)) http('PUT', '/feedback/' + sid, { useful: !!useful, comment: comment ? String(comment).slice(0, 200) : undefined }, true);
+    if (get(TOKEN) && u) http('PUT', '/feedback/' + sid, { useful: !!useful, comment: comment ? String(comment).slice(0, 2000) : '' }, true);
+  }
+
+  function adminFeedback(schemeId) {
+    if (!get(TOKEN)) return [];
+    var r = http('GET', '/admin/feedback' + (schemeId ? '?schemeId=' + encodeURIComponent(schemeId) : ''));
+    return r && r.status === 200 && Array.isArray(r.data) ? r.data : null;
   }
 
   /* ---------- unanswered queries (search + chatbots) ---------- */
@@ -288,7 +295,7 @@ CC.store = (function () {
     categories: categories, category: category, schemes: schemes, scheme: scheme, doc: doc, faqs: faqs,
     session: session, currentUser: currentUser, login: login, register: register, logout: logout,
     profile: profile, saveProfile: saveProfile, saved: saved, isSaved: isSaved, toggleSave: toggleSave,
-    checklist: checklist, setChecklist: setChecklist, giveFeedback: giveFeedback, logQuery: logQuery,
+    checklist: checklist, setChecklist: setChecklist, giveFeedback: giveFeedback, adminFeedback: adminFeedback, logQuery: logQuery,
     notifications: notifications, markRead: markRead, upsert: upsert, stats: stats, remote: remote, apiError: apiError, isOnline: isOnline
   };
 })();

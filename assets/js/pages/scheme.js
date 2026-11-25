@@ -110,17 +110,33 @@
   U.$$('.cc-tabs [data-bs-toggle=tab]').forEach(function (b) { b.addEventListener('shown.bs.tab', function () { history.replaceState(null, '', '#' + b.id.replace('tab-', '')); }); });
   // scheme assistant
   CC.bot.mount(U.$('#scheme-bot'), { scope: 'scheme', scheme: s });
-  // feedback (state A)
+  // feedback
   var fb = U.$('#feedback');
   function fbAsk() {
-    fb.innerHTML = '<div class="d-flex flex-wrap align-items-center gap-3"><h2 id="fb-h" class="h5 mb-0">' + U.esc(T('fb.q', 'Was this information useful?')) + '</h2><div class="d-flex gap-2"><button class="btn btn-outline-primary" data-fb="1"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i>' + U.esc(T('common.yes', 'Yes')) + '</button><button class="btn btn-outline-primary" data-fb="0"><i class="bi bi-hand-thumbs-down" aria-hidden="true"></i>' + U.esc(T('common.no', 'No')) + '</button></div></div>';
-    U.$$('[data-fb]', fb).forEach(function (b) { b.addEventListener('click', function () {
-      if (b.getAttribute('data-fb') === '1') { S.giveFeedback(s.id, true); thanks(); return; }
-      fb.innerHTML = '<form id="fb-form"><h2 id="fb-h" class="h5">' + U.esc(T('fb.what', 'What was missing or unclear?')) + ' <span class="text-muted small fw-normal">(' + U.esc(T('fb.optional', 'optional')) + ')</span></h2><label class="visually-hidden" for="fb-t">' + U.esc(T('fb.what', 'What was missing or unclear?')) + '</label><textarea id="fb-t" class="form-control mb-1" rows="3" maxlength="200"></textarea><div class="form-text mb-2"><span id="fb-n">0</span>/200</div><button class="btn btn-primary">' + U.esc(T('fb.submit', 'Submit feedback')) + '</button></form>';
-      U.$('#fb-t').addEventListener('input', function () { U.$('#fb-n').textContent = this.value.length; }); U.$('#fb-t').focus();
-      U.$('#fb-form').addEventListener('submit', function (e) { e.preventDefault(); S.giveFeedback(s.id, false, U.$('#fb-t').value.trim()); thanks(); });
-    }); });
+    fb.innerHTML = '<form id="fb-form"><h2 id="fb-h" class="h5">' + U.esc(T('fb.q', 'Was this information useful?')) + '</h2>' +
+      '<div class="choice-group mb-3" role="radiogroup" aria-label="' + U.esc(T('fb.q', 'Was this information useful?')) + '">' +
+      '<input type="radio" name="feedback-useful" id="fb-yes" value="yes"><label for="fb-yes"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i> ' + U.esc(T('common.yes', 'Yes')) + '</label>' +
+      '<input type="radio" name="feedback-useful" id="fb-no" value="no"><label for="fb-no"><i class="bi bi-hand-thumbs-down" aria-hidden="true"></i> ' + U.esc(T('common.no', 'No')) + '</label></div>' +
+      '<div class="mb-2"><label class="form-label" for="fb-t">' + U.esc(T('fb.details', 'Detailed feedback')) + '</label>' +
+      '<textarea id="fb-t" class="form-control" rows="4" maxlength="2000" placeholder="' + U.esc(T('fb.placeholder', 'Share your suggestions or tell us how we can improve...')) + '"></textarea>' +
+      '<div class="form-text text-end"><span id="fb-n">0</span>/2000</div></div>' +
+      '<button type="submit" class="btn btn-primary"><i class="bi bi-send" aria-hidden="true"></i> ' + U.esc(T('fb.submit', 'Submit Feedback')) + '</button></form>'; 
+
+    U.$('#fb-t').addEventListener('input', function () { U.$('#fb-n').textContent = this.value.length; });
+    U.$('#fb-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!u) { location.href = 'login.html?reason=feedback&next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search); return; }
+      var choice = U.$('input[name="feedback-useful"]:checked');
+      if (!choice) { U.toast(T('fb.choose', 'Please choose Yes or No.'), 'error'); U.$('#fb-yes').focus(); return; }
+      var comment = U.$('#fb-t').value.trim();
+      if (comment.length > 2000) return;
+      S.giveFeedback(s.id, choice.value === 'yes', comment);
+      thanks();
+    });
   }
-  function thanks() { fb.innerHTML = '<div class="ok-box" role="status"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><div><strong id="fb-h">' + U.esc(T('fb.thanks', 'Thank you — this helps us improve.')) + '</strong> <button class="btn btn-link p-0 align-baseline" style="min-height:0" id="fb-change">' + U.esc(T('fb.change', 'Change answer')) + '</button></div></div>'; U.$('#fb-change').onclick = fbAsk; }
+  function thanks() {
+    fb.innerHTML = '<div class="ok-box" role="status"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><div><strong id="fb-h">' + U.esc(T('fb.thanks', 'Thank you — this helps us improve.')) + '</strong> <button type="button" class="btn btn-link p-0 align-baseline" style="min-height:0" id="fb-change">' + U.esc(T('fb.change', 'Change answer')) + '</button></div></div>'; 
+    U.$('#fb-change').onclick = fbAsk;
+  }
   fbAsk();
 })();

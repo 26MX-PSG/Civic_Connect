@@ -26,7 +26,10 @@
           <div class="d-flex flex-wrap gap-2 mb-3" id="q-filters"></div>
           <div class="table-wrap"><div class="table-responsive"><table class="table table-cc"><thead><tr><th data-i18n="aa.query">Query</th><th data-i18n="aa.from">From</th><th data-i18n="aa.times">Times</th><th data-i18n="aa.last">Last asked</th><th data-i18n="as.status">Status</th></tr></thead><tbody id="q-rows"></tbody></table></div></div>
         </div>
-        <div class="tab-pane fade" id="t-f" role="tabpanel"><div class="table-wrap"><div class="table-responsive"><table class="table table-cc"><thead><tr><th data-i18n="ad.scheme">Scheme</th><th data-i18n="aa.yes">Yes</th><th data-i18n="aa.no">No</th><th data-i18n="ad.useful">% useful</th><th data-i18n="aa.comments">Comments</th></tr></thead><tbody id="f-rows"></tbody></table></div></div></div>
+        <div class="tab-pane fade" id="t-f" role="tabpanel">
+          <div class="d-flex flex-wrap align-items-end gap-2 mb-3"><div style="max-width:320px"><label class="form-label" for="f-scheme-filter">Filter by scheme</label><select id="f-scheme-filter" class="form-select"><option value="">All schemes</option></select></div></div>
+          <div class="table-wrap"><div class="table-responsive"><table class="table table-cc"><thead><tr><th>User</th><th>Scheme</th><th>Response</th><th>Written feedback</th><th>Submitted</th></tr></thead><tbody id="f-rows"></tbody></table></div></div>
+        </div>
         <div class="tab-pane fade" id="t-u" role="tabpanel">
           <div class="ok-box mb-3 small"><i class="bi bi-shield-lock" aria-hidden="true"></i><span data-i18n="aa.privacy">Only name, email and account status are shown. Income, disability and other profile details are never visible to admins.</span></div>
           <div class="table-wrap"><div class="table-responsive"><table class="table table-cc"><thead><tr><th data-i18n="auth.name">Full name</th><th data-i18n="auth.email">Email</th><th data-i18n="aa.joined">Joined</th><th data-i18n="as.status">Status</th><th class="text-end" data-i18n="as.actions">Actions</th></tr></thead><tbody id="u-rows"></tbody></table></div></div>
