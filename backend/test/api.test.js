@@ -143,7 +143,7 @@ test('scheme detail', async () => {
 });
 
 test('documents and faqs', async () => {
-  let r = await call('GET', '/api/documents'); assert.equal(r.json.length, 14);
+  let r = await call('GET', '/api/documents'); assert.equal(r.json.length, 32);
   r = await call('GET', '/api/documents/aadhaar'); assert.ok(r.json.where_en);
   r = await call('GET', '/api/faqs'); assert.equal(r.json.length, 16);
   r = await call('GET', '/api/faqs?keyword=income'); assert.ok(r.json.length >= 1);

@@ -145,7 +145,6 @@ CC.ui = (function () {
       '<li><hr class="dropdown-divider"></li><li><button class="dropdown-item" data-logout><i class="bi bi-box-arrow-right"></i>' + esc(T('nav.logout', 'Log out')) + '</button></li></ul></div>'
       : '<a class="btn btn-primary" href="' + base + 'login.html"><i class="bi bi-person-circle" aria-hidden="true"></i><span>' + esc(T('nav.login', 'Log in')) + '</span></a>';
     return '<a class="skip-link" href="#main">' + esc(T('common.skip', 'Skip to content')) + '</a>' +
-      '<div class="demo-strip">' + esc(T('demo.strip', 'Student project demo · scheme details are sample data — always confirm on the official portal.')) + '</div>' +
       '<header class="site-header"><nav class="navbar navbar-expand-lg" aria-label="' + esc(T('nav.main', 'Main')) + '"><div class="container gap-2">' +
       '<a class="brand" href="' + base + 'index.html"><span class="brand-mark" aria-hidden="true">CC</span><span>CivicConnect</span></a>' +
       '<ul class="navbar-nav main-nav d-none d-lg-flex flex-row mx-auto">' + links.map(function (l) { return '<li class="nav-item"><a class="nav-link' + (page === l[0] ? ' active" aria-current="page' : '') + '" href="' + base + l[1] + '"><i class="bi bi-' + l[2] + '" aria-hidden="true"></i>' + esc(l[3]) + '</a></li>'; }).join('') + '</ul>' +

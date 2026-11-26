@@ -1,7 +1,7 @@
 /* Home page */
 (function () {
   var U = CC.ui, T = CC.i18n.t, S = CC.store;
-  U.$('#hero-img').innerHTML = U.img('hero', 'hero', '', 'hero-img');
+  U.$('#hero-img').innerHTML = '<img class="hero-img" src="assets/img/brand/banner.jpg" width="1500" height="1000" alt="CivicConnect: discover government schemes for you">';
   // Find My Schemes → profile (or register first)
   var u = S.currentUser();
   U.$('#find-btn').href = u ? (S.profile(u.id) ? 'matching.html#results' : 'matching.html') : 'login.html?next=matching.html';
