@@ -420,17 +420,6 @@ strong, b { font-weight: 600; }
 .dropdown-item:active { background: var(--color-mocha-tint); color: var(--color-mocha-brown); }
 .dropdown-divider { border-color: var(--color-divider); margin: 0.3rem 0; }
 
-/* Demo strip */
-.demo-strip {
-  background: var(--color-pale-lavender);
-  color: var(--color-lavender-text);
-  font-size: 0.82rem;
-  text-align: center;
-  padding: 0.3rem 1rem;
-  border-bottom: 1px solid var(--color-lavender-dark);
-  font-weight: 500;
-}
-
 /* ================================================================
    BOTTOM NAV (MOBILE)
    ================================================================ */
@@ -1529,10 +1518,16 @@ button.chip:hover, a.chip:hover {
    PRINT
    ================================================================ */
 @media print {
-  body * { visibility: hidden; }
-  #print-area, #print-area * { visibility: visible; }
-  #print-area { position: absolute; left: 0; top: 0; width: 100%; }
   .no-print { display: none !important; }
+  /* Checklist: remove everything else from the page (hidden elements would still take up space) */
+  body:has(#print-area) *:not(:has(#print-area)):not(#print-area):not(#print-area *) { display: none !important; }
+  body:has(#print-area), body *:has(#print-area) {
+    display: block !important; position: static !important; width: auto !important; max-width: none !important;
+    min-height: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important;
+    box-shadow: none !important; background: #fff !important; opacity: 1 !important; transform: none !important;
+  }
+  #print-area .doc-row { break-inside: avoid; }
+  #print-area .progress { display: none; }
 }
 
 /* ================================================================
