@@ -13,7 +13,7 @@
   <rect width="900" height="1200" fill="url(#authBg)"/>
   <rect width="900" height="1200" fill="url(#authLav)"/>
   <circle cx="760" cy="180" r="260" fill="#E6E0F0" opacity=".08"/>
-  <circle cx="120" cy="1050" r="300" fill="#8B6347" opacity=".18"/>
+  <circle cx="120" cy="1050" r="300" fill="#1D5FC4" opacity=".18"/>
   <circle cx="450" cy="550" r="230" fill="#FAF9F7" opacity=".08"/>
   <!-- Central Emblem / Citizen Outline -->
   <g transform="translate(320,420) scale(16.25)" fill="#FAF9F7" opacity="0.95">

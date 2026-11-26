@@ -156,7 +156,7 @@ CC.ui = (function () {
       u ? ['matching', 'matching.html', 'stars', T('nav.match', 'Matching')] : ['login', 'login.html', 'person', T('nav.login', 'Log in')]];
     return '<nav class="bottom-nav d-md-none" aria-label="' + esc(T('nav.mobile', 'Quick navigation')) + '">' + items.map(function (i) {
       var act = page === i[0] || (i[0] === 'matching' && page === 'dashboard');
-      return '<a href="' + base + i[1] + '"' + (act ? ' class="active" aria-current="page"' : '') + '><i class="bi bi-' + i[2] + (act ? '-fill' : '') + '" aria-hidden="true"></i>' + esc(i[3]) + '</a>';
+      return '<a href="' + base + i[1] + '"' + (act ? ' class="active" aria-current="page"' : '') + '><i class="bi bi-' + i[2] + (act && i[2] !== 'stars' ? '-fill' : '') + '" aria-hidden="true"></i>' + esc(i[3]) + '</a>';
     }).join('') + '</nav>';
   }
   function footer() {
