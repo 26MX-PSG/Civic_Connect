@@ -311,17 +311,9 @@ strong, b { font-weight: 600; }
 
 .brand-mark {
   width: 36px; height: 36px; border-radius: 9px;
-  background: var(--color-mocha-brown);
-  color: #fff;
-  display: grid; place-items: center; font-size: 1rem;
-  position: relative; overflow: hidden;
+  background: #fff url('../img/favicon.svg') center / cover no-repeat;
+  font-size: 0;   /* the logo replaces the old "CC" text */
   flex-shrink: 0;
-}
-.brand-mark::after {
-  content: '';
-  position: absolute; right: -4px; bottom: -4px;
-  width: 14px; height: 14px; border-radius: 50%;
-  background: var(--color-pale-lavender);
 }
 
 /* Navigation */
@@ -543,7 +535,7 @@ a.card:hover {
 
 .hero-img {
   border-radius: var(--cc-radius);
-  width: 100%; aspect-ratio: 16/10; object-fit: cover;
+  width: 100%; height: auto; aspect-ratio: 3/2; object-fit: cover;
   box-shadow: 0 20px 50px rgba(41,37,34,0.30);
   border: 2px solid rgba(255,255,255,0.12);
 }
@@ -1242,21 +1234,8 @@ button.chip:hover, a.chip:hover {
    AUTH PAGES
    ================================================================ */
 .auth-wrap { min-height: calc(100vh - 64px); display: grid; grid-template-columns: 1fr 1fr; }
-.auth-art { position: relative; background: var(--color-mocha-brown); overflow: hidden; }
-.auth-art::before {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(160deg, var(--color-mocha-dark) 0%, var(--color-mocha-brown) 60%, var(--color-mocha-light) 100%);
-  opacity: 0.92;
-}
-.auth-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.20; }
-.auth-art .quote {
-  position: absolute; left: 32px; right: 32px; bottom: 32px;
-  color: #fff;
-  background: rgba(41,37,34,0.50);
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: var(--cc-radius); padding: 18px 20px;
-  backdrop-filter: blur(8px); z-index: 2;
-}
+.auth-art { display: grid; justify-items: center; align-content: start; padding: 24px; background: #d6ecff; }
+.auth-art img { width: 100%; max-width: min(640px, calc(100vh - 112px)); height: auto; border-radius: var(--cc-radius); }
 .auth-form { display: grid; place-items: center; padding: 40px 16px; background: var(--color-background); }
 .auth-card { width: 100%; max-width: 420px; }
 @media (max-width: 991.98px) { .auth-wrap { grid-template-columns: 1fr; } .auth-art { display: none; } }
@@ -1395,7 +1374,6 @@ button.chip:hover, a.chip:hover {
   box-shadow: 1px 0 0 var(--color-divider);
 }
 .admin-side .brand { color: var(--color-text-primary); padding: 4px 8px 16px; }
-.admin-side .brand-mark { background: var(--color-mocha-brown); color: #fff; }
 .admin-side .brand-name { font-size: 1.05rem; }
 
 .admin-side a.side-link {

@@ -1,7 +1,7 @@
 /* Login / Register */
 (function () {
   var U = CC.ui, T = CC.i18n.t, S = CC.store;
-  U.$('#auth-art').insertAdjacentHTML('afterbegin', U.img('hero', 'auth', ''));
+  U.$('#auth-art').insertAdjacentHTML('afterbegin', '<img src="assets/img/brand/poster.jpg" width="1000" height="1000" alt="CivicConnect: find, check, apply">');
   var next = U.param('next') || '', reason = U.param('reason');
   function go(u) {
     if (u.role === 'ADMIN' && (!next || !/^admin\//.test(next))) return location.href = 'admin/index.html';
