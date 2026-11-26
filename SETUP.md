@@ -45,17 +45,11 @@ API index: http://localhost:3000/api-docs · Health: http://localhost:3000/api/h
 
 The terminal prints `[mail] SMTP login OK` when email is configured, or `[mail] email OFF — …` when it is not.
 
-### Demo logins (local seed)
+### Logins
+Login details are not published here. Ask the project team for them.
 
-| Role | Email | Password | Notes |
-|---|---|---|---|
-| Admin | `26MX102@psgtech.ac.in` | `dav231107` | admin pages: `/admin/index.html` |
-| Citizen | `26MX203@psgtech.ac.in` | `26MX203` | has a profile, saved schemes and **email notifications ON** |
-| Other citizens | `26MX225`, `26MX205`, … `@psgtech.ac.in` | same as the roll number | `26MX220` is a disabled account |
-
-> These are real college addresses. With SMTP configured, announcements/notifications go **only to users who
-> turned on email notifications** (in the seed: only `26MX203`), but password-reset emails go to whoever
-> you request them for. Don't test with other people's addresses.
+> With SMTP configured, password-reset emails are really sent to the address you enter.
+> Don't test with other people's addresses.
 
 ### Run the tests
 ```bash

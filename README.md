@@ -15,13 +15,6 @@ cd backend && npm install && npm run db:reset && npm start
 ```
 Then open **http://localhost:3000** (the server serves the website and the API).
 
-## Demo accounts (local seed)
-
-| Role | Email | Password |
-|---|---|---|
-| Admin | 26MX102@psgtech.ac.in | dav231107 |
-| Citizen (profile filled in, email notifications on) | 26MX203@psgtech.ac.in | 26MX203 |
-
 ## Try the chatbots
 
 * **General assistant** — the green **Ask CivicConnect** button on any page (also inline on *Help*).
@@ -66,7 +59,7 @@ npm run db:reset                     # creates tables (db/schema.sql) and loads 
 npm start                            # http://localhost:3000   (npm run dev = auto-restart)
 ```
 Dev DB login: database `civicconnect`, user `civic_user`, password `civic_pass123`, port **3307**.
-Demo accounts (same as the frontend): `citizen@demo.in / demo123`, `admin@demo.in / admin123`.
+Login details are not published here. Ask the project team for them.
 
 ### Commands
 | Command | What it does |

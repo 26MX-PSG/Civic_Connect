@@ -65,13 +65,7 @@
     setTimeout(function () {
       var r = S.register(U.$('#r-name').value, U.$('#r-email').value, p1.value); busy(btn, false);
       if (!r.ok) { err.textContent = r.error === 'weak' ? T('auth.weakRules', 'Weak password — use 8+ characters, one uppercase letter, one number and one special character.') : T('auth.exists', 'An account with this email already exists. Try logging in.'); err.classList.remove('d-none'); return; }
-      location.href = 'profile.html?welcome=1';
+      location.href = 'matching.html?welcome=1';
     }, 400);
-  });
-  U.$$('[data-demo]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var admin = b.getAttribute('data-demo') === 'admin';
-      var r = S.login(admin ? 'admin@demo.in' : 'citizen@demo.in', admin ? 'admin123' : 'demo123'); if (r.ok) go(r.user);
-    });
   });
 })();
