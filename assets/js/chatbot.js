@@ -83,7 +83,7 @@ CC.bot = (function () {
     { id: 'eligibility', label: ['Eligibility / criteria', 'தகுதி / நிபந்தனைகள்'], words: ['eligible', 'eligibility', 'criteria', 'criterion', 'qualify', 'condition', 'who', 'age', 'limit', 'allowed', 'தகுதி', 'யார்', 'வயது', 'நிபந்தனை'] },
     { id: 'benefits', label: ['Benefits', 'பயன்கள்'], words: ['benefit', 'amount', 'money', 'much', 'receive', 'payment', 'instalment', 'installment', 'cover', 'coverage', 'what get', 'பயன்', 'தொகை', 'பணம்', 'கிடைக்கும்'] },
     { id: 'apply', label: ['How to apply', 'எப்படி விண்ணப்பிப்பது'], words: ['apply', 'application', 'register', 'registration', 'enrol', 'enroll', 'portal', 'website', 'link', 'online', 'submit', 'விண்ணப்', 'இணையதள', 'பதிவு'] },
-    { id: 'source', label: ['Source & last verified', 'மூலம் & சரிபார்ப்பு'], words: ['source', 'verified', 'updated', 'official', 'department', 'genuine', 'மூலம்', 'அதிகாரப்பூர்வ'] },
+    { id: 'source', label: ['Source & last verified', 'இணைய ஆதாரம் & சரிபார்ப்பு'], words: ['source', 'verified', 'updated', 'official', 'department', 'genuine', 'ஆதாரம்', 'மூலம்', 'அதிகாரப்பூர்வ'] },
     { id: 'overview', label: ['Overview', 'கண்ணோட்டம்'], words: ['what', 'about', 'explain', 'summary', 'overview', 'meaning', 'mean', 'விளக்க', 'என்றால்'] }
   ];
   var GREET = ['hi', 'hello', 'hey', 'vanakkam', 'வணக்கம்', 'good morning', 'good evening'];
